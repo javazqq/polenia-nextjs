@@ -6,7 +6,7 @@ export default function Navbar() {
       <ul className="flex space-x-4">
         <li><Link href="/">Home</Link></li>
         <li><Link href="/about">About</Link></li>
-        <li><Link href="/contact">Contact</Link></li>
+        <li><Link href="#footer" scroll={true}>Contact</Link></li>
       </ul>
     </nav>
   );

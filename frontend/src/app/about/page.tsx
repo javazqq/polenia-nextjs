@@ -1,7 +1,7 @@
 // src/app/about/page.tsx
 export default function About() {
     return (
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 h-screen flex justify-center items-center bg-yellow-50">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl font-bold text-yellow-900 mb-8">About GingerBuzz</h1>
           <p className="text-xl text-yellow-700 mb-6">

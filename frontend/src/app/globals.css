@@ -55,3 +55,8 @@ body {
     transform: translate3d(85px, 0, 0);
   }
 }
+
+/* Custom Scrolling */
+html {
+  scroll-behavior: smooth;
+}
