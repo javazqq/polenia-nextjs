@@ -1,11 +1,11 @@
 // src/app/about/page.tsx
 export default function About() {
     return (
-      <section className="py-16 px-4 h-screen flex justify-center items-center bg-yellow-50">
+      <section className="min-h-screen py-20 px-4 flex justify-center items-center bg-blue-50">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-yellow-900 mb-8">About GingerBuzz</h1>
+          <h1 className="text-4xl font-bold text-yellow-900 mb-8">About Polenia</h1>
           <p className="text-xl text-yellow-700 mb-6">
-            At GingerBuzz, we craft the finest ginger beer using traditional recipes and the best natural ingredients.
+            At Polenia, we craft the finest ginger beer using traditional recipes and the best natural ingredients.
             We believe in the power of bold flavors and the art of brewing small batches with passion.
           </p>
           <h2 className="text-2xl font-semibold text-yellow-900 mb-4">Our Story</h2>

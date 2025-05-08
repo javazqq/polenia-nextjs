@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 export default function Hero() {
   return (
-    <div className=" h-screen overflow-hidden">
+    <div className=" h-screen relative overflow-hidden">
       <section className=" bg-gradient-to-br from-yellow-100 via-yellow-300 to-yellow-500 text-center h-full flex flex-col justify-center items-center">
         {/* Hero content */}
         <motion.div
