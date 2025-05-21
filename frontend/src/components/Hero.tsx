@@ -15,9 +15,11 @@ export default function Hero() {
         >
           <h1 className="text-6xl font-extrabold text-yellow-900 drop-shadow-lg">Ginger Beer</h1>
           <p className="text-2xl mt-4 text-yellow-800">Crafted ginger beer with a spicy kick and refreshing zest</p>
+          <a href="/order">
           <button className="mt-8 bg-yellow-900 text-white px-8 py-4 rounded-full text-lg hover:bg-yellow-800 transition">
             Order Now
           </button>
+          </a>
         </motion.div>
       </section>
 
