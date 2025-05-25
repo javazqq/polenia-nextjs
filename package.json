@@ -1,0 +1,32 @@
+{
+  "name": "polenia-next",
+  "version": "1.0.0",
+  "description": "polenia.mx",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "nodemon backend/server.js",
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/javazqq/polenia-nextjs.git"
+  },
+  "author": "polenia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/javazqq/polenia-nextjs/issues"
+  },
+  "homepage": "https://github.com/javazqq/polenia-nextjs#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.5.0",
+    "nodemon": "^3.1.10"
+  }
+}

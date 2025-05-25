@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Logo or Brand Name */}
           <div className="text-xl font-semibold">
             <Link href="/" className="text-yellow-500 hover:text-yellow-400">
-              Ginger Beer
+              Polenia
             </Link>
           </div>
 
