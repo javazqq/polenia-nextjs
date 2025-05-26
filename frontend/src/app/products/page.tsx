@@ -1,17 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import axios from 'axios';
-
-type Product = {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-};
+import { useGetProductsQuery } from '@/slices/productsApiSlice';
 
 const containerVariants = {
   hidden: {},
@@ -28,21 +19,7 @@ const cardVariants = {
 };
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { data } = await axios.get('/api/products'); // Use relative URL
-        setProducts(data);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-  
+  const { data: products = [], isLoading, isError, error } = useGetProductsQuery();
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-20 min-h-screen">
@@ -55,39 +32,56 @@ export default function ProductsPage() {
         Our Products
       </motion.h1>
 
-      <motion.div
-        className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-      >
-        {products.map((product) => (
-          <motion.div
-            key={product.id}
-            variants={cardVariants}
-            className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-transform duration-300"
-          >
-            <div className="relative h-60">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="p-4">
-              <h2 className="text-xl font-semibold">{product.name}</h2>
-              <p className="text-sm text-gray-600 mt-1">{product.description}</p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="text-lg font-bold">${product.price}</span>
-                <button className="px-4 py-2 bg-yellow-800 text-white rounded-xl hover:bg-yellow-700 transition">
-                  Add to Cart
-                </button>
+      {/* Loading Spinner */}
+      {isLoading && (
+        <div className="flex justify-center items-center py-20">
+          <div className="w-12 h-12 border-4 border-yellow-800 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {isError && (
+        <div className="text-red-600 text-center font-semibold py-10">
+          Failed to load products. Please try again later.
+        </div>
+      )}
+
+      {/* Product Grid */}
+      {!isLoading && !isError && (
+        <motion.div
+          className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          {products.map((product) => (
+            <motion.div
+              key={product.id}
+              variants={cardVariants}
+              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-transform duration-300"
+            >
+              <div className="relative h-60">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+              <div className="p-4">
+                <h2 className="text-xl font-semibold">{product.name}</h2>
+                <p className="text-sm text-gray-600 mt-1">{product.description}</p>
+                <div className="mt-4 flex justify-between items-center">
+                  <span className="text-lg font-bold">${product.price}</span>
+                  <button className="px-4 py-2 bg-yellow-800 text-white rounded-xl hover:bg-yellow-700 transition">
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
     </section>
   );
 }
