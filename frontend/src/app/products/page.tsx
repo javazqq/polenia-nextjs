@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
-
 type Product = {
   id: number;
   name: string;
@@ -13,7 +12,6 @@ type Product = {
   price: number;
   image: string;
 };
-
 
 const containerVariants = {
   hidden: {},
@@ -30,20 +28,18 @@ const cardVariants = {
 };
 
 export default function ProductsPage() {
-
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      
       try {
-        const { data } = await axios.get('http://localhost:5000/api/products');
+        const { data } = await axios.get('/api/products'); // Use relative URL
         setProducts(data);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       }
     };
-  
+
     fetchProducts();
   }, []);
   
