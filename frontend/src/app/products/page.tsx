@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useGetProductsQuery } from '@/slices/productsApiSlice';
 
@@ -19,12 +20,12 @@ const cardVariants = {
 };
 
 export default function ProductsPage() {
-  const { data: products = [], isLoading, isError, error } = useGetProductsQuery();
+  const { data: products = [], isLoading, isError } = useGetProductsQuery();
 
   return (
-    <section className="max-w-6xl mx-auto px-4 py-20 min-h-screen">
+    <section className="w-full px-6 md:px-16 py-20 min-h-screen bg-gradient-to-br from-yellow-100 via-yellow-300 to-yellow-500">
       <motion.h1
-        className="text-4xl font-bold mb-10 text-center"
+        className="text-4xl font-extrabold mb-12 text-center text-yellow-900 drop-shadow-sm"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
@@ -32,24 +33,21 @@ export default function ProductsPage() {
         Our Products
       </motion.h1>
 
-      {/* Loading Spinner */}
       {isLoading && (
         <div className="flex justify-center items-center py-20">
           <div className="w-12 h-12 border-4 border-yellow-800 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
 
-      {/* Error Message */}
       {isError && (
         <div className="text-red-600 text-center font-semibold py-10">
           Failed to load products. Please try again later.
         </div>
       )}
 
-      {/* Product Grid */}
       {!isLoading && !isError && (
         <motion.div
-          className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3"
           variants={containerVariants}
           initial="hidden"
           animate="show"
@@ -58,25 +56,34 @@ export default function ProductsPage() {
             <motion.div
               key={product.id}
               variants={cardVariants}
-              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-transform duration-300"
+              className="bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl hover:scale-[1.03] transition-transform duration-300"
             >
-              <div className="relative h-60">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <h2 className="text-xl font-semibold">{product.name}</h2>
-                <p className="text-sm text-gray-600 mt-1">{product.description}</p>
-                <div className="mt-4 flex justify-between items-center">
-                  <span className="text-lg font-bold">${product.price}</span>
-                  <button className="px-4 py-2 bg-yellow-800 text-white rounded-xl hover:bg-yellow-700 transition">
-                    Add to Cart
-                  </button>
+              <Link href={`/products/${product.id}`} className="block cursor-pointer group">
+                <div className="relative h-64 rounded-t-3xl overflow-hidden shadow-inner">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
+                <div className="p-5">
+                  <h2 className="text-2xl font-semibold text-yellow-900 mb-2 group-hover:underline">
+                    {product.name}
+                  </h2>
+                  <p className="text-gray-700 text-sm line-clamp-3">
+                    {product.description}
+                  </p>
+                </div>
+              </Link>
+
+              <div className="p-5 pt-0 flex justify-between items-center">
+                <span className="inline-block bg-yellow-900 text-yellow-100 font-semibold text-lg px-4 py-1 rounded-full shadow-md">
+                  ${product.price.toFixed(2)}
+                </span>
+                <button className="px-5 py-2 bg-yellow-800 hover:bg-yellow-700 text-white rounded-xl shadow-lg transition">
+                  Add to Cart
+                </button>
               </div>
             </motion.div>
           ))}
