@@ -8,6 +8,7 @@ export interface Product {
   description: string;
   price: number;
   image: string;
+  countInStock: number;
 }
 
 export const productsApiSlice = apiSlice.injectEndpoints({
