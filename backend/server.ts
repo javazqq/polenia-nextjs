@@ -1,30 +1,28 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import products, { Product } from './data/products';
-
+import productRoutes from './routes/productRoutes';
 
 dotenv.config();
 
 const port = process.env.PORT || 5000;
-
 const app = express();
 
+// Middleware
 app.use(cors({
   origin: 'http://localhost:3000',
 }));
+app.use(express.json());
 
-app.get('/', (_req: Request, res: Response) => {
+// Routes
+app.get('/', (_req, res) => {
   res.send('API is working...');
 });
 
-app.get('/api/products', (_req: Request, res: Response) => {
-  res.json(products);
-});
+// Product routes
+app.use('/api/products', productRoutes);
 
-app.get('/api/products/:id', (req: Request, res: Response) => {
-  const product = products.find((p) => p.id === Number(req.params.id));
-  res.json(product);
+// Start server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
-
-app.listen(port, () => console.log(`Server is running on http://localhost:${port}`));
