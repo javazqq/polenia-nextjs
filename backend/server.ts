@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import productRoutes from './routes/productRoutes';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app = express();
 // Middleware
 app.use(cors({
   origin: 'http://localhost:3000',
+  credentials: true,
 }));
 app.use(express.json());
 
@@ -21,6 +23,9 @@ app.get('/', (_req, res) => {
 
 // Product routes
 app.use('/api/products', productRoutes);
+
+// User routes
+app.use('/api/users', userRoutes);
 
 // Start server
 app.listen(port, () => {
