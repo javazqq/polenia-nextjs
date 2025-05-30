@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
     registerUser,
     loginUser,
+    logoutUser,
     getUserProfile,
     getUsers
 } from '../controllers/userController';
@@ -16,6 +17,10 @@ router.post('/register', registerUser);
 // @route   POST /api/users/login
 // @desc    Authenticate user & get token
 router.post('/login', loginUser);
+
+// @route   POST /api/users/logout
+// @desc    Logout user (clear JWT cookie)
+router.post('/logout', logoutUser);
 
 // @route   GET /api/users/profile
 // @desc    Get current user profile

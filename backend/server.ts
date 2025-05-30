@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import cookieParser from 'cookie-parser'; // Add this import
 import productRoutes from './routes/productRoutes';
 import userRoutes from './routes/userRoutes';
 
@@ -14,6 +15,7 @@ app.use(cors({
   origin: 'http://localhost:3000',
   credentials: true,
 }));
+app.use(cookieParser()); // Add cookie-parser middleware
 app.use(express.json());
 
 // Routes
