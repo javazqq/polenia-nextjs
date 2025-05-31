@@ -90,41 +90,52 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
       </AnimatePresence>
 
       {showCheckoutOptions && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Checkout Options</h2>
-            <p className="mb-6">How would you like to continue?</p>
-            <div className="flex flex-col space-y-3">
-              <button
-                className="bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700"
-                onClick={() => {
-                  setShowCheckoutOptions(false);
-                  onClose();
-                  router.push("/checkout?guest=true");
-                }}
-              >
-                Continue as Guest
-              </button>
-              <button
-                className="bg-gray-100 text-gray-800 py-2 rounded hover:bg-gray-200"
-                onClick={() => {
-                  setShowCheckoutOptions(false);
-                  onClose();
-                  router.push("/login?redirect=/checkout");
-                }}
-              >
-                Login to Checkout
-              </button>
-              <button
-                className="mt-2 text-sm text-gray-500 hover:underline"
-                onClick={() => setShowCheckoutOptions(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center px-4">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.2 }}
+      className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+    >
+      <h2 className="text-2xl font-bold text-center mb-3 text-gray-800">
+        Checkout Options
+      </h2>
+      <p className="text-sm text-center text-gray-600 mb-6">
+        How would you like to proceed?
+      </p>
+
+      <div className="flex flex-col space-y-3">
+        <button
+          className="bg-yellow-600 hover:bg-yellow-500 text-white font-semibold py-2 rounded-lg transition duration-200"
+          onClick={() => {
+            setShowCheckoutOptions(false);
+            onClose();
+            router.push("/checkout?guest=true");
+          }}
+        >
+          Continue as Guest
+        </button>
+        <button
+          className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 rounded-lg transition duration-200"
+          onClick={() => {
+            setShowCheckoutOptions(false);
+            onClose();
+            router.push("/login?redirect=/checkout");
+          }}
+        >
+          Login to Checkout
+        </button>
+        <button
+          className="text-sm text-gray-500 hover:text-gray-700 hover:underline mt-2 transition"
+          onClick={() => setShowCheckoutOptions(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </motion.div>
+  </div>
+)}
     </>
   );
 }
