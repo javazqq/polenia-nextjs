@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store"; // Adjust path if needed
+import { useLogoutMutation } from "@/slices/usersApiSlice"; // Add logout mutation
+import { logout } from "@/slices/authSlice"; // Add logout action
 import { AnimatedMenuIcon } from "./AnimatedMenuIcon";
 import {
   Menu,
@@ -13,26 +15,39 @@ import {
   Mail,
   MessageCircleQuestion,
   ShoppingCart,
+  User,
+  LogOut,
 } from "lucide-react";
 import CartDrawer from "./CartDrawer";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-
   const [cartOpen, setCartOpen] = useState(false);
-
   const [isClient, setIsClient] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // For dropdown menu
+
+  const dispatch = useDispatch();
+  const { userInfo } = useSelector((state: RootState) => state.auth); // Get user info
+  const [logoutApi, { isLoading: isLogoutLoading }] = useLogoutMutation();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Select cart items from Redux store
-  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
-
   // Calculate total quantity in cart
+  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+      dispatch(logout());
+      setDropdownOpen(false); // Close dropdown
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
 
   const navLinks = [
     { href: "/", label: "Home", icon: Home },
@@ -90,6 +105,50 @@ export default function Navbar() {
                 )}
               </li>
             ))}
+            {/* Auth Link */}
+            {isClient && (
+              <li className="relative">
+                {userInfo ? (
+                  <div className="relative">
+                    <button
+                      onClick={() => setDropdownOpen((prev) => !prev)}
+                      className="hover:text-yellow-300 flex items-center gap-2"
+                    >
+                      <User size={20} />
+                      {userInfo.name}
+                    </button>
+                    <AnimatePresence>
+                      {dropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg z-50"
+                        >
+                          <button
+                            onClick={handleLogout}
+                            disabled={isLogoutLoading}
+                            className="w-full text-left px-4 py-2 hover:bg-yellow-100 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <LogOut size={16} />
+                            {isLogoutLoading ? "Logging out..." : "Logout"}
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="hover:text-yellow-300 flex items-center gap-2"
+                  >
+                    <User size={20} />
+                    Login
+                  </Link>
+                )}
+              </li>
+            )}
           </ul>
 
           <button
@@ -139,8 +198,6 @@ export default function Navbar() {
                     {label}
                   </Link>
                 )}
-
-                {/* Badge in mobile menu */}
                 {showCount && isClient && totalItems > 0 && (
                   <span className="absolute -top-2 -right-6 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-800 bg-yellow-300 rounded-full">
                     {totalItems}
@@ -148,6 +205,25 @@ export default function Navbar() {
                 )}
               </motion.div>
             ))}
+            {/* Auth Link for Mobile */}
+            {isClient && (
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
+                className="text-4xl md:text-5xl font-bold flex items-center gap-4 cursor-pointer hover:text-yellow-300 transition relative"
+              >
+                <User size={36} />
+                {userInfo ? (
+                  <button onClick={handleLogout} disabled={isLogoutLoading}>
+                    {isLogoutLoading ? "Logging out..." : "Logout"}
+                  </button>
+                ) : (
+                  <Link href="/login" onClick={() => setMenuOpen(false)}>
+                    Login
+                  </Link>
+                )}
+              </motion.div>
+            )}
           </motion.aside>
         )}
       </AnimatePresence>

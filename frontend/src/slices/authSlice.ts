@@ -1,12 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// Define the shape of your user info (customize as needed)
 interface UserInfo {
   id: number;
   name: string;
   email: string;
   role: string;
-  token?: string; // optional if you're using httpOnly cookies
+  token?: string;
 }
 
 interface AuthState {

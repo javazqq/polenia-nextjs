@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
     registerUser,
+    createGuestUser,
     loginUser,
     logoutUser,
     getUserProfile,
@@ -13,6 +14,10 @@ const router = Router();
 // @route   POST /api/users/register
 // @desc    Register a new user
 router.post('/register', registerUser);
+
+// @route   POST /api/users/guest
+// @desc    Create a guest user
+router.post('/guest', createGuestUser);
 
 // @route   POST /api/users/login
 // @desc    Authenticate user & get token

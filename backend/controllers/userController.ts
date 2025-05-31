@@ -1,4 +1,5 @@
 import { Request, Response, RequestHandler } from "express";
+import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pool from "../config/db";
@@ -60,6 +61,74 @@ export const registerUser: RequestHandler = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// @desc Create guest user or return existing one if token present
+// @route POST /api/users/guest
+// @access Public
+export const createGuestUser: RequestHandler = async (req, res) => {
+  try {
+    const token = req.cookies.jwt;
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: number, role: string };
+
+        const userQuery = await pool.query(
+          "SELECT id, name, email, role FROM users WHERE id = $1",
+          [decoded.id]
+        );
+
+        if (userQuery.rows.length > 0) {
+          res.status(200).json({
+            token,
+            user: userQuery.rows[0],
+          });
+          return; // Keep this return to exit the function
+        }
+      } catch {
+        // token invalid or expired, create new guest
+      }
+    }
+
+    // No valid token - create new guest user
+    const uuid = uuidv4();
+    const email = `guest_${uuid}@guest.local`;
+    const password = uuid; // internal use only
+    const name = "Guest";
+    const role = "guest";
+
+    const result = await pool.query(
+      `INSERT INTO users (name, email, password, role, is_guest)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, name, email, role`,
+      [name, email, password, role, true]
+    );
+
+    const user = result.rows[0];
+
+    const newToken = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1d" }
+    );
+
+    res.cookie("jwt", newToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    res.status(201).json({
+      token: newToken,
+      user: result.rows[0] 
+    });
+  } catch (error) {
+    console.error("Guest user creation error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 // @desc    Authenticate user & get token
 // @route   POST /api/users/login
