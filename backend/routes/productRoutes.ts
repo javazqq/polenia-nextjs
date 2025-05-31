@@ -1,9 +1,19 @@
-import { Router } from 'express';
-import { getProducts, getProductById } from '../controllers/productController';
+import { Router, RequestHandler } from 'express';
+import {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct
+} from '../controllers/productController';
 
-const router = Router();
+const router: Router = Router();
 
-router.get('/', getProducts);
-router.get('/:id', getProductById);
+// Explicitly type each route handler
+router.get("/", getProducts as RequestHandler);
+router.get("/:id", getProductById as RequestHandler);
+router.post("/", createProduct as RequestHandler);
+router.put("/:id", updateProduct as RequestHandler);
+router.delete("/:id", deleteProduct as RequestHandler);
 
 export default router;

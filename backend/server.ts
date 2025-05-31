@@ -16,7 +16,24 @@ app.use(cors({
   credentials: true,
 }));
 app.use(cookieParser()); // Add cookie-parser middleware
-app.use(express.json());
+
+
+app.use((req, res, next) => {
+  if (req.headers['content-type'] === 'text/plain') {
+    let data = '';
+    req.on('data', chunk => data += chunk);
+    req.on('end', () => {
+      try {
+        req.body = JSON.parse(data);
+        next();
+      } catch (e) {
+        res.status(400).json({ error: 'Invalid JSON' });
+      }
+    });
+  } else {
+    express.json()(req, res, next); // Normal JSON handling
+  }
+});
 
 // Routes
 app.get('/', (_req, res) => {
