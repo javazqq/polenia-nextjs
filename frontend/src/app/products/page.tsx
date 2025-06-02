@@ -3,7 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useGetProductsQuery } from '@/slices/productsApiSlice';
+import { useEffect, useState } from 'react';
+import { Product } from '@/types/product';
+import { fetchProducts } from '@/lib/api/products';
 
 const containerVariants = {
   hidden: {},
@@ -20,7 +22,21 @@ const cardVariants = {
 };
 
 export default function ProductsPage() {
-  const { data: products = [], isLoading, isError } = useGetProductsQuery();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+        fetchProducts()
+        .then((data) => {
+            setProducts(data);
+            setIsLoading(false);
+        })
+        .catch(()=> {
+            setIsError(true);
+            setIsLoading(false);
+        });
+    }, []);
 
   return (
     <section className="w-full px-6 md:px-16 py-20 min-h-screen bg-gradient-to-br from-yellow-100 via-yellow-300 to-yellow-500">
