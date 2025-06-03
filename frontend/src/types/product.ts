@@ -4,4 +4,5 @@ export type Product = {
   description: string;
   image: string;
   price: number;
+  countInStock: number;
 };
