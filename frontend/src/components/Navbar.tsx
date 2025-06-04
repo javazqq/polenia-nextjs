@@ -35,6 +35,10 @@ export default function Navbar() {
     setIsClient(true);
   }, []);
 
+  useEffect(() => {
+  console.log('Navbar width:', document.querySelector('nav')?.offsetWidth);
+}, []);
+
   // Calculate total quantity in cart
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -170,7 +174,7 @@ export default function Navbar() {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed inset-0 bg-yellow-700 z-40 flex flex-col justify-center items-center space-y-12 text-white"
+            className="fixed top-16 inset-0 bg-yellow-700 z-40 flex flex-col justify-center items-center space-y-12 text-white"
           >
             {navLinks.map(({ href, label, icon: Icon, scroll, showCount }) => (
               <motion.div

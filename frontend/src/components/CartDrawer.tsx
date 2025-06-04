@@ -6,7 +6,7 @@ import { removeFromCart } from '@/slices/cartSlice';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useState } from 'react'; // ✅ You forgot this import!
+import { useState } from 'react'; 
 
 interface Props {
   isOpen: boolean;

@@ -9,6 +9,7 @@ export interface CartItem {
   image: string;
 }
 
+
 export interface ShippingAddress {
   address: string;
   city: string;
@@ -24,6 +25,7 @@ export interface CartState {
   shippingPrice: string;
   taxPrice: string;
   totalPrice: string;
+  isCartDrawerOpen: boolean;
 }
 
 // --- Utils ---
@@ -33,6 +35,8 @@ const updateCart = (state: CartState) => {
   }
   return state;
 };
+
+
 
 // --- Initial State ---
 const initialState: CartState = typeof window !== 'undefined' && localStorage.getItem('cart')
@@ -45,6 +49,7 @@ const initialState: CartState = typeof window !== 'undefined' && localStorage.ge
       shippingPrice: '0.00',
       taxPrice: '0.00',
       totalPrice: '0.00',
+      isCartDrawerOpen: false,
     };
 
 // --- Slice ---
@@ -86,6 +91,16 @@ const cartSlice = createSlice({
       state.cartItems = [];
       return updateCart(state);
     },
+
+    openCartDrawer: (state) => {
+      state.isCartDrawerOpen = true;
+      return state;
+    },
+
+    closeCartDrawer: (state) => {
+      state.isCartDrawerOpen = false;
+      return state;
+    }
   },
 });
 
@@ -96,6 +111,8 @@ export const {
   saveShippingAddress,
   savePaymentMethod,
   clearCartItems,
+  openCartDrawer,
+  closeCartDrawer
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

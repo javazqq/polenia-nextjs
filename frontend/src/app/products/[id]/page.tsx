@@ -1,53 +1,78 @@
-  "use client";
+"use client";
 
-  import { useState } from "react";
-  import { useParams, useRouter } from "next/navigation";
-  import { useDispatch } from "react-redux";
-  import { addToCart } from "@/slices/cartSlice";
-  import { useGetProductDetailsQuery } from "@/slices/productsApiSlice";
-  import { motion } from "framer-motion";
-  import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { addToCart, openCartDrawer, closeCartDrawer } from "@/slices/cartSlice";
+import { fetchProductById } from "@/lib/api/products";
+import { Product } from "@/types/product";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import CartDrawer from "@/components/CartDrawer";
 
-  export default function ProductPage() {
-    const params = useParams();
-    const id = params?.id as string;
-    const [quantity, setQuantity] = useState(1);
-    const router = useRouter();
-    const dispatch = useDispatch();
+export default function ProductPage() {
+  const [product, setProduct] = useState<Product>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
-    const { data: product, isLoading, isError } = useGetProductDetailsQuery(id);
+  const params = useParams();
+  const id = params?.id as string;
 
-    const handleAddToCart = () => {
-      if (!product) return;
-      dispatch(
-        addToCart({
-          id: Number(product.id),
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          quantity,
-        })
-      );
-      router.push("/cart");
-    };
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center h-screen">
-          <div className="w-12 h-12 border-4 border-yellow-800 border-t-transparent rounded-full animate-spin" />
-        </div>
-      );
-    }
+  const isCartDrawerOpen = useSelector(
+    (state: RootState) => state.cart.isCartDrawerOpen
+  );
 
-    if (isError || !product) {
-      return (
-        <div className="text-center text-red-600 font-bold py-20">
-          Failed to load product details.
-        </div>
-      );
-    }
+  useEffect(() => {
+    fetchProductById(id)
+      .then((data) => {
+        setProduct(data);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsError(true);
+        setIsLoading(false);
+      });
+  }, [id]);
 
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    dispatch(
+      addToCart({
+        id: Number(product.id),
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity,
+      })
+    );
+
+    dispatch(openCartDrawer());
+  };
+
+  if (isLoading) {
     return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-12 h-12 border-4 border-yellow-800 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError || !product) {
+    return (
+      <div className="text-center text-red-600 font-bold py-20">
+        Failed to load product details.
+      </div>
+    );
+  }
+
+  return (
+    <>
       <section className="w-full px-6 md:px-16 py-24 min-h-screen bg-gradient-to-br from-yellow-100 via-yellow-200 to-yellow-400">
         <motion.div
           className="grid md:grid-cols-2 gap-16 items-start"
@@ -143,5 +168,12 @@
           </motion.div>
         </motion.div>
       </section>
-    );
-  }
+
+      {/* Global cart drawer */}
+      <CartDrawer
+        isOpen={isCartDrawerOpen}
+        onClose={() => dispatch(closeCartDrawer())}
+      />
+    </>
+  );
+}

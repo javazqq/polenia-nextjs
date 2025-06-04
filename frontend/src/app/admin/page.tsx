@@ -164,8 +164,8 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-yellow-50 text-yellow-900 px-4 py-10">
-      <div className="max-w-5xl mx-auto space-y-10">
+    <main className="pt-24 px-4 pb-16 min-h-screen bg-yellow-50 text-yellow-900">
+      <div className="max-w-5xl mx-auto space-y-16">
         <h1 className="text-4xl font-bold text-center text-yellow-900">Admin Dashboard</h1>
 
         {/* Users Section */}
@@ -331,6 +331,6 @@ export default function AdminPage() {
           </ul>
         </section>
       </div>
-    </div>
+    </main>
   );
 }
