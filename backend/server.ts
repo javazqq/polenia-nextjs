@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser'; // Add this import
 import productRoutes from './routes/productRoutes';
 import userRoutes from './routes/userRoutes';
+import orderRoutes from './routes/orderRoutes';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use((req, res, next) => {
   }
 });
 
+
 // Routes
 app.get('/', (_req, res) => {
   res.send('API is working...');
@@ -45,6 +47,10 @@ app.use('/api/products', productRoutes);
 
 // User routes
 app.use('/api/users', userRoutes);
+
+// Order routes
+app.use('/api/orders', orderRoutes)
+
 
 // Start server
 app.listen(port, () => {

@@ -16,6 +16,10 @@ interface Props {
 export default function CartDrawer({ isOpen, onClose }: Props) {
   const router = useRouter();
   const dispatch = useDispatch();
+
+  // Get user info from Redux state
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
   const [showCheckoutOptions, setShowCheckoutOptions] = useState(false);
 
@@ -23,6 +27,18 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
 
   const calculateSubtotal = () =>
     cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  // Handle proceed to checkout button click
+  const handleProceedToCheckout = () => {
+    if (userInfo) {
+      // Logged in — go directly to checkout
+      onClose();
+      router.push('/checkout');
+    } else {
+      // Not logged in — show checkout options modal
+      setShowCheckoutOptions(true);
+    }
+  };
 
   return (
     <>
@@ -37,7 +53,10 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-extrabold text-yellow-900">Your Cart</h2>
-              <button onClick={onClose} className="text-yellow-700 font-medium hover:underline">
+              <button
+                onClick={onClose}
+                className="text-yellow-700 font-medium hover:underline"
+              >
                 Close
               </button>
             </div>
@@ -82,7 +101,7 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
                     Subtotal: ${calculateSubtotal().toFixed(2)}
                   </p>
                   <button
-                    onClick={() => setShowCheckoutOptions(true)}
+                    onClick={handleProceedToCheckout}
                     className="w-full bg-yellow-800 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-xl transition duration-200"
                     disabled={cartItems.length === 0}
                   >
@@ -92,7 +111,7 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
               </>
             )}
           </motion.aside>
-        )}    
+        )}
       </AnimatePresence>
 
       <AnimatePresence>
