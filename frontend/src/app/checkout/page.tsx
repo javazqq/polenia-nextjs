@@ -24,59 +24,59 @@ export default function CheckoutPage() {
   const calculateSubtotal = () =>
     cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  const handlePlaceOrder = async () => {
-    setError('');
-    if (isGuest && (!name || !email || !address)) {
-      setError('Please fill all guest information fields.');
-      return;
-    }
-    if (cartItems.length === 0) {
-      setError('Your cart is empty.');
-      return;
-    }
+ const handlePlaceOrder = async () => {
+  setError('');
+  if (isGuest && (!name || !email || !address)) {
+    setError('Please fill all guest information fields.');
+    return;
+  }
+  if (cartItems.length === 0) {
+    setError('Your cart is empty.');
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      // Create guest user if needed
-      if (isGuest) {
-        const guestRes = await fetch('/api/users/guest', {
-          method: 'POST',
-          credentials: 'include',
-        });
-
-        if (!guestRes.ok) {
-          const guestData = await guestRes.json();
-          throw new Error(guestData.message || 'Failed to create guest user');
-        }
-      }
-
-      // Place the order
-      const res = await fetch('/api/orders', {
+  try {
+    // Si es invitado, crear cuenta temporal
+    if (isGuest) {
+      const guestRes = await fetch('/api/users/guest', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-          items: cartItems,
-          total: calculateSubtotal(),
-          ...(isGuest ? { name, email, address } : {}),
-        }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to place order');
+      if (!guestRes.ok) {
+        const guestData = await guestRes.json();
+        throw new Error(guestData.message || 'Failed to create guest user');
       }
-
-      // Redirect on success
-      router.push(`/order-confirmation/${data.orderId}`);
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong.');
-    } finally {
-      setLoading(false);
     }
-  };
+
+    // Crear preferencia de pago en el backend
+    const paymentRes = await fetch('http://localhost:5000/api/payment/create-preference', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        cartItems,
+        userEmail: isGuest ? email : undefined,
+      }),
+    });
+
+    const paymentData = await paymentRes.json();
+
+    if (!paymentRes.ok) {
+      throw new Error(paymentData.error || 'Failed to create payment preference');
+    }
+
+    // Redirigir a MercadoPago
+    window.location.href = `https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=${paymentData.id}`;
+  } catch (err: any) {
+    setError(err.message || 'Something went wrong.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <section className=" bg-yellow-50 py-12">

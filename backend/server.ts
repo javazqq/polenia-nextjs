@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'; // Add this import
 import productRoutes from './routes/productRoutes';
 import userRoutes from './routes/userRoutes';
 import orderRoutes from './routes/orderRoutes';
+import paymentRoutes from './routes/paymentRoutes';
 
 dotenv.config();
 
@@ -50,6 +51,9 @@ app.use('/api/users', userRoutes);
 
 // Order routes
 app.use('/api/orders', orderRoutes)
+
+// Payment routes
+app.use('/api/payment', paymentRoutes);
 
 
 // Start server
