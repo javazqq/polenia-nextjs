@@ -132,26 +132,31 @@ export default function ProductPage() {
 
             {product.countInStock > 0 && (
               <div className="flex flex-col sm:flex-row gap-4 sm:items-center mt-6">
-                <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="quantity"
-                    className="text-sm font-medium text-yellow-900"
-                  >
-                    Qty:
-                  </label>
-                  <select
-                    id="quantity"
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="rounded-md px-3 py-2 text-yellow-900 border border-yellow-700 bg-white shadow"
-                  >
-                    {[...Array(product.countInStock).keys()].map((x) => (
-                      <option key={x + 1} value={x + 1}>
-                        {x + 1}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <div className="flex items-center gap-3">
+  <span className="text-sm font-medium text-yellow-900">Qty:</span>
+  <div className="flex items-center border border-yellow-700 rounded-md overflow-hidden bg-white shadow">
+    <button
+      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+      className="px-3 py-1 text-xl font-bold text-yellow-900 hover:bg-yellow-200 disabled:opacity-50"
+      disabled={quantity <= 1}
+      aria-label="Decrease quantity"
+    >
+      −
+    </button>
+    <span className="px-4 py-1 text-yellow-900">{quantity}</span>
+    <button
+      onClick={() =>
+        setQuantity((q) => Math.min(product.countInStock, q + 1))
+      }
+      className="px-3 py-1 text-xl font-bold text-yellow-900 hover:bg-yellow-200 disabled:opacity-50"
+      disabled={quantity >= product.countInStock}
+      aria-label="Increase quantity"
+    >
+      +
+    </button>
+  </div>
+</div>
+
 
                 <motion.button
                   onClick={handleAddToCart}

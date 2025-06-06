@@ -167,70 +167,71 @@ export default function Navbar() {
 
       {/* Full-screen mobile menu */}
       <AnimatePresence>
-        {menuOpen && (
-          <motion.aside
-            key="mobile-drawer"
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed top-16 inset-0 bg-yellow-700 z-40 flex flex-col justify-center items-center space-y-12 text-white"
-          >
-            {navLinks.map(({ href, label, icon: Icon, scroll, showCount }) => (
-              <motion.div
-                key={label}
-                whileTap={{ scale: 0.95 }}
-                whileHover={{ scale: 1.05 }}
-                className="text-4xl md:text-5xl font-bold flex items-center gap-4 cursor-pointer hover:text-yellow-300 transition relative"
-              >
-                <Icon size={36} />
-                {label === "Cart" ? (
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      setCartOpen(true);
-                    }}
-                  >
-                    {label}
-                  </button>
-                ) : (
-                  <Link
-                    href={href}
-                    scroll={scroll ?? true}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {label}
-                  </Link>
-                )}
-                {showCount && isClient && totalItems > 0 && (
-                  <span className="absolute -top-2 -right-6 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-800 bg-yellow-300 rounded-full">
-                    {totalItems}
-                  </span>
-                )}
-              </motion.div>
-            ))}
-            {/* Auth Link for Mobile */}
-            {isClient && (
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                whileHover={{ scale: 1.05 }}
-                className="text-4xl md:text-5xl font-bold flex items-center gap-4 cursor-pointer hover:text-yellow-300 transition relative"
-              >
-                <User size={36} />
-                {userInfo ? (
-                  <button onClick={handleLogout} disabled={isLogoutLoading}>
-                    {isLogoutLoading ? "Logging out..." : "Logout"}
-                  </button>
-                ) : (
-                  <Link href="/login" onClick={() => setMenuOpen(false)}>
-                    Login
-                  </Link>
-                )}
-              </motion.div>
+  {menuOpen && (
+    <motion.aside
+      key="mobile-drawer"
+      initial={{ x: '-100%' }}
+      animate={{ x: 0 }}
+      exit={{ x: '-100%' }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="fixed left-0 top-16 w-full h-[calc(100vh-4rem)] bg-white z-40 shadow-2xl rounded-r-2xl border-r-2 border-yellow-200 p-6 overflow-y-auto"
+    >
+      <div className="flex flex-col justify-center items-center space-y-6 text-yellow-900">
+        {navLinks
+        .map(({ href, label, icon: Icon, scroll, showCount }) => (
+          <div key={label} className="w-full">
+            <div className="flex justify-center items-center space-x-4 text-lg font-semibold py-1 hover:text-yellow-700 transition relative">
+              <Icon size={24} />
+              {label === 'Cart' ? (
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setCartOpen(true);
+                  }}
+                >
+                  {label}
+                </button>
+              ) : (
+                <Link
+                  href={href}
+                  scroll={scroll ?? true}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {label}
+                </Link>
+              )}
+              {showCount && isClient && totalItems > 0 && (
+                <span className="absolute right-10 inline-flex items-center justify-center px-2 py-1 text-xs font-bold text-yellow-800 bg-yellow-300 rounded-full">
+                  {totalItems}
+                </span>
+              )}
+            </div>
+            <hr className="my-2 border-yellow-100" />
+          </div>
+        ))}
+
+        {/* Auth Link for Mobile */}
+        <div className="w-full">
+          <div className="flex justify-center items-center space-x-4 text-lg font-semibold py-3 hover:text-yellow-700 transition">
+            <User size={24} />
+            {userInfo ? (
+              <button onClick={handleLogout} disabled={isLogoutLoading}>
+                {isLogoutLoading ? 'Logging out...' : 'Logout'}
+              </button>
+            ) : (
+              <Link href="/login" onClick={() => setMenuOpen(false)}>
+                Login
+              </Link>
             )}
-          </motion.aside>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </motion.aside>
+  )}
+</AnimatePresence>
+
+
+
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );

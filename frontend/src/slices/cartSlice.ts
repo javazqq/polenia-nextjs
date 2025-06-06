@@ -39,18 +39,26 @@ const updateCart = (state: CartState) => {
 
 
 // --- Initial State ---
-const initialState: CartState = typeof window !== 'undefined' && localStorage.getItem('cart')
-  ? JSON.parse(localStorage.getItem('cart') as string)
-  : {
-      cartItems: [],
-      shippingAddress: { address: '', city: '', postalCode: '', country: '' },
-      paymentMethod: 'Paypal',
-      itemsPrice: '0.00',
-      shippingPrice: '0.00',
-      taxPrice: '0.00',
-      totalPrice: '0.00',
-      isCartDrawerOpen: false,
+const initialState: CartState = (() => {
+  if (typeof window !== 'undefined' && localStorage.getItem('cart')) {
+    const storedState = JSON.parse(localStorage.getItem('cart') as string);
+    return {
+      ...storedState,
+      isCartDrawerOpen: false, // always reset drawer state on load
     };
+  }
+
+  return {
+    cartItems: [],
+    shippingAddress: { address: '', city: '', postalCode: '', country: '' },
+    paymentMethod: 'Paypal',
+    itemsPrice: '0.00',
+    shippingPrice: '0.00',
+    taxPrice: '0.00',
+    totalPrice: '0.00',
+    isCartDrawerOpen: false,
+  };
+})();
 
 // --- Slice ---
 const cartSlice = createSlice({
