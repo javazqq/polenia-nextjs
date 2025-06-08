@@ -52,7 +52,7 @@ export default function CheckoutPage() {
     }
 
     // Crear preferencia de pago en el backend
-    const paymentRes = await fetch('http://localhost:5000/api/payment/create-preference', {
+    const paymentRes = await fetch('https://gjvvhm5d-5000.usw3.devtunnels.ms/api/payment/create-preference', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

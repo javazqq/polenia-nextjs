@@ -1,4 +1,5 @@
 import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser'; // Add this import
@@ -14,9 +15,13 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000',
+  'https://gjvvhm5d-3000.usw3.devtunnels.ms',
+  ],
   credentials: true,
 }));
+
+
 app.use(cookieParser()); // Add cookie-parser middleware
 
 
