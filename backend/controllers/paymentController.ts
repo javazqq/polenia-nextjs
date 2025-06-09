@@ -11,7 +11,7 @@ const preference = new Preference(client);
 
 export const createPreference = async (req: Request, res: Response) => {
   try {
-    const { cartItems, userEmail } = req.body;
+    const { cartItems, userEmail, orderId } = req.body;
 
     const items = cartItems.map((item: any) => ({
       title: item.name || 'Item sin nombre',
@@ -26,7 +26,7 @@ export const createPreference = async (req: Request, res: Response) => {
         email: userEmail || 'guest@test.com',
       },
       back_urls: {
-        success: `${process.env.APP_URL}/payment/success`,
+        success: `https://gjvvhm5d-3000.usw3.devtunnels.ms/payment/success?orderId=${orderId}`,
         failure: `${process.env.APP_URL}/payment/failure`,
         pending: `${process.env.APP_URL}/payment/pending`,
       },

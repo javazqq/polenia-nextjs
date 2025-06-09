@@ -52,6 +52,19 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+// Update order status
+export const updateOrderStatus = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    await pool.query('UPDATE orders SET status = $1 WHERE id = $2', [status, id]);
+    res.json({ message: 'Order status updated' });
+  } catch (error) {
+    console.error('Update order status error:', error);
+    res.status(500).json({ message: 'Failed to update order status' });
+  }
+};
+
 // Get all orders (admin only)
 export const getAllOrders = async (_req: Request, res: Response): Promise<void> => {
   try {

@@ -5,12 +5,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { clearCartItems } from '@/slices/cartSlice';
 import Image from 'next/image';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isGuest = searchParams?.get('guest') === 'true';
+  const dispatch = useDispatch();
 
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
 
@@ -23,6 +25,8 @@ export default function CheckoutPage() {
 
   const calculateSubtotal = () =>
     cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
 
  const handlePlaceOrder = async () => {
   setError('');
@@ -49,16 +53,38 @@ export default function CheckoutPage() {
         const guestData = await guestRes.json();
         throw new Error(guestData.message || 'Failed to create guest user');
       }
+    };
+
+    // 1. Create order in backend
+    const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        items: cartItems,
+        total: calculateSubtotal(),
+        // Optionally, guest info if needed
+        guestName: isGuest ? name : undefined,
+        guestEmail: isGuest ? email : undefined,
+        guestAddress: isGuest ? address : undefined,
+      }),
+    });
+
+    const orderData = await orderRes.json();
+    if (!orderRes.ok) {
+      throw new Error(orderData.message || 'Failed to create order');
     }
 
+
     // Crear preferencia de pago en el backend
-    const paymentRes = await fetch('https://gjvvhm5d-5000.usw3.devtunnels.ms/api/payment/create-preference', {
+    const paymentRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-preference`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify({
         cartItems,
         userEmail: isGuest ? email : undefined,
+        orderId: orderData.orderId, 
       }),
     });
 
@@ -67,6 +93,8 @@ export default function CheckoutPage() {
     if (!paymentRes.ok) {
       throw new Error(paymentData.error || 'Failed to create payment preference');
     }
+
+    dispatch(clearCartItems());
 
     // Redirigir a MercadoPago
     window.location.href = `https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=${paymentData.id}`;
