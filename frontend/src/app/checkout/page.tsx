@@ -61,13 +61,12 @@ export default function CheckoutPage() {
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify({
-        items: cartItems,
-        total: calculateSubtotal(),
-        // Optionally, guest info if needed
-        guestName: isGuest ? name : undefined,
-        guestEmail: isGuest ? email : undefined,
-        guestAddress: isGuest ? address : undefined,
-      }),
+  items: cartItems,
+  total: calculateSubtotal(),
+  guest_name: isGuest ? name : undefined,
+  guest_email: isGuest ? email : undefined,
+  guest_address: isGuest ? address : undefined,
+}),
     });
 
     const orderData = await orderRes.json();

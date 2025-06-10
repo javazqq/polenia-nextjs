@@ -11,7 +11,11 @@ const preference = new Preference(client);
 
 export const createPreference = async (req: Request, res: Response) => {
   try {
-    const { cartItems, userEmail, orderId } = req.body;
+    const user = (req as any).user;
+    const { cartItems,  userName, userEmail, orderId } = req.body;
+
+    const payerName = user ? user.name : userName || 'Guest';
+    const payerEmail = user ? user.email : userEmail || 'guest@test.com';
 
     const items = cartItems.map((item: any) => ({
       title: item.name || 'Item sin nombre',
@@ -23,7 +27,8 @@ export const createPreference = async (req: Request, res: Response) => {
     const preferenceData = {
       items,
       payer: {
-        email: userEmail || 'guest@test.com',
+        name: payerName,
+        email: payerEmail,
       },
       back_urls: {
         success: `https://gjvvhm5d-3000.usw3.devtunnels.ms/payment/success?orderId=${orderId}`,
@@ -33,6 +38,7 @@ export const createPreference = async (req: Request, res: Response) => {
       // Puedes probar comentar auto_return si da error
        auto_return: 'approved',
       notification_url: `${process.env.API_URL}/api/payment/webhook`,
+      external_reference: orderId,
     };
 
     // Crear la preferencia

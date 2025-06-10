@@ -28,11 +28,14 @@ interface Order {
   user_id?: number;
   guest_name?: string;
   guest_email?: string;
+  status: string;
   items: {
     name: string;
     quantity: number;
     price: number;
   }[];
+  user_name?: string;
+  user_email?: string;
 }
 
 export default function Dashboard() {
@@ -165,6 +168,7 @@ export default function Dashboard() {
         });
       } else {
         console.error("Failed to create product");
+        console.log(await res.text());
       }
     } catch (error) {
       console.error("Error creating product:", error);
@@ -227,9 +231,17 @@ export default function Dashboard() {
                 className="py-3 flex justify-between flex-col sm:flex-row sm:items-center"
               >
                 <div>
-                  <span className="text-xs text-yellow-500 mr-2">ID: {user.id}</span>
-                  <span className="font-medium">{user.name}</span> —{" "}
-                  {user.email}
+                  <span className="text-xs text-yellow-500 mr-2">
+                    ID: {user.id}
+                  </span>
+                  {user.role !== "guest" && (
+                    <>
+                      <span className="font-medium text-yellow-900">
+                        {user.name}
+                      </span>{" "}
+                      — <span className="text-yellow-600">{user.email}</span>
+                    </>
+                  )}
                 </div>
                 <span className="text-sm font-semibold uppercase text-yellow-700 mt-1 sm:mt-0">
                   {user.role}
@@ -370,16 +382,20 @@ export default function Dashboard() {
                       </h3>
                       <p className="text-sm text-yellow-700">
                         {order.user_id
-                          ? `User ID: ${order.user_id}`
+                          ? order.user_name && order.user_email
+                            ? `User: ID:${order.user_id}, ${order.user_name} (${order.user_email})`
+                            : `User ID: ${order.user_id}`
                           : `Guest: ${order.guest_name} (${order.guest_email})`}
                       </p>
                       <p className="text-sm text-yellow-600">
                         Date: {new Date(order.created_at).toLocaleString()}
                       </p>
+                      <p className="text-sm text-yellow-600">
+                        Status: {order.status}
+                      </p>
                     </div>
                     <p className="text-lg font-semibold text-yellow-800">
                       ${Number(order.total).toFixed(2)}
-
                     </p>
                   </div>
                   <ul className="mt-2 pl-4 text-sm list-disc text-yellow-700">
