@@ -36,9 +36,9 @@ export default function Hero() {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="text-7xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-900 via-orange-800 to-amber-900 mb-6 leading-tight"
           >
-            Ginger
+            POLENIA
             <br />
-            <span className="text-6xl md:text-7xl">Beer</span>
+            <span className="text-4xl md:text-5xl">Ginger Beer</span>
           </motion.h1>
 
           {/* Subtitle */}
