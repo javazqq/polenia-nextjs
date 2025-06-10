@@ -96,7 +96,7 @@ export default function CheckoutPage() {
     dispatch(clearCartItems());
 
     // Redirigir a MercadoPago
-    window.location.href = `https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=${paymentData.id}`;
+    window.location.href = paymentData.checkoutUrl;
   } catch (err: any) {
     setError(err.message || 'Something went wrong.');
   } finally {

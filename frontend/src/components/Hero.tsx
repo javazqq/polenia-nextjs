@@ -60,16 +60,17 @@ export default function Hero() {
             transition={{ delay: 0.7, duration: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <a href="/order" className="group">
+            <a href="/products" className="group">
               <button className="bg-gradient-to-r from-amber-900 to-orange-800 text-white px-10 py-4 rounded-2xl text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-amber-800 group-hover:to-orange-700">
                 Order Now
                 <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300 inline-block">→</span>
               </button>
             </a>
-            
+            <a href='/about' className="group">
             <button className="bg-white/80 backdrop-blur-sm text-amber-900 px-10 py-4 rounded-2xl text-lg font-semibold hover:bg-white hover:shadow-xl transition-all duration-300 border border-amber-200">
               Learn More
             </button>
+            </a>
           </motion.div>
 
           {/* Features */}

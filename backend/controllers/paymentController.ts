@@ -35,26 +35,27 @@ export const createPreference = async (req: Request, res: Response) => {
         failure: `${process.env.APP_URL}/payment/failure`,
         pending: `${process.env.APP_URL}/payment/pending`,
       },
-      // Puedes probar comentar auto_return si da error
-       auto_return: 'approved',
+      auto_return: 'approved',
       notification_url: `${process.env.API_URL}/api/payment/webhook`,
       external_reference: orderId,
     };
 
-    // Crear la preferencia
     const response = await preference.create({ body: preferenceData });
 
-    // DEBUG: mira qué recibes
     console.log('Respuesta de preferencia:', response);
 
-    // Extraer el id de la preferencia
     const preferenceId = response.id;
+    const checkoutUrl = response.init_point;
 
-    if (!preferenceId) {
-      throw new Error('No se pudo obtener el ID de la preferencia');
+    if (!preferenceId || !checkoutUrl) {
+      throw new Error('No se pudo obtener la preferencia completa');
     }
 
-    res.json({ id: preferenceId });
+    // Return both the preference ID and the checkout URL
+    res.json({ 
+      id: preferenceId,
+      checkoutUrl: checkoutUrl 
+    });
   } catch (error) {
     console.error('Error al crear preferencia:', error);
     res.status(500).json({ error: 'No se pudo crear la preferencia de pago' });
