@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { fetchProducts } from "@/lib/api/products";
 import { Product } from "@/types/product";
 import { ArrowRight, Star, ShoppingCart } from "lucide-react";
+import MovingBanner from "./Banner";
 
 export default function FeaturedProductsNextApi() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -52,6 +53,11 @@ export default function FeaturedProductsNextApi() {
   };
 
   return (
+    <>
+    <section className="pt-16 pb-8 bg-gradient-to-br from-amber-50 to-orange-50 relative">
+    <MovingBanner />
+    </section>
+
     <section className="w-full px-6 md:px-16 py-24 bg-gradient-to-br from-slate-50 via-amber-50 to-orange-50 relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -245,5 +251,6 @@ export default function FeaturedProductsNextApi() {
         </motion.div>
       </div>
     </section>
+    </>
   );
 }

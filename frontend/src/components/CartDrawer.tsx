@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store';
-import { removeFromCart } from '@/slices/cartSlice';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { useState } from 'react';
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store";
+import { removeFromCart } from "@/slices/cartSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useState } from "react";
 
 interface Props {
   isOpen: boolean;
@@ -33,7 +33,7 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
     if (userInfo) {
       // Logged in — go directly to checkout
       onClose();
-      router.push('/checkout');
+      router.push("/checkout");
     } else {
       // Not logged in — show checkout options modal
       setShowCheckoutOptions(true);
@@ -44,73 +44,188 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
     <>
       <AnimatePresence>
         {isOpen && (
-          <motion.aside
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ duration: 0.3 }}
-            className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50 overflow-y-auto p-6 rounded-l-2xl border-l-2 border-yellow-200"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-extrabold text-yellow-900">Your Cart</h2>
-              <button
-                onClick={onClose}
-                className="text-yellow-700 font-medium hover:underline"
-              >
-                Close
-              </button>
-            </div>
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+              onClick={onClose}
+            />
 
-            {cartItems.length === 0 ? (
-              <p className="text-yellow-800">Your cart is empty.</p>
-            ) : (
-              <>
-                <div className="space-y-4">
-                  {cartItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between p-3 border border-yellow-100 rounded-xl shadow-sm bg-yellow-50"
-                    >
-                      <div className="flex items-center gap-4">
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          width={50}
-                          height={50}
-                          className="rounded-lg"
-                        />
-                        <div>
-                          <p className="font-semibold text-yellow-900">{item.name}</p>
-                          <p className="text-sm text-yellow-700">
-                            {item.quantity} × ${item.price.toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => handleRemove(item.id)}
-                        className="text-red-600 font-bold text-lg hover:scale-110 transition-transform"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 border-t pt-4 space-y-4">
-                  <p className="font-semibold text-lg text-yellow-900">
-                    Subtotal: ${calculateSubtotal().toFixed(2)}
-                  </p>
+            <motion.aside
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="fixed right-0 top-0 h-full w-full max-w-md bg-[#FFFBF4]/95 backdrop-blur-lg shadow-2xl z-50 overflow-y-auto rounded-l-3xl border-l border-[#DDC7FF]"
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-8">
+                  <div>
+                    <h2 className="text-2xl font-bold text-[#6153E0] mb-1">
+                      Your Cart
+                    </h2>
+                    <p className="text-sm text-[#6153E0]/70">
+                      {cartItems.length}{" "}
+                      {cartItems.length === 1 ? "item" : "items"}
+                    </p>
+                  </div>
                   <button
-                    onClick={handleProceedToCheckout}
-                    className="w-full bg-yellow-800 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-xl transition duration-200"
-                    disabled={cartItems.length === 0}
+                    onClick={onClose}
+                    className="p-2 rounded-xl bg-[#DDC7FF]/30 text-[#6153E0] hover:bg-[#DDC7FF]/50 transition-all duration-200"
                   >
-                    Proceed to Checkout
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M18 6L6 18M6 6L18 18"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </button>
                 </div>
-              </>
-            )}
-          </motion.aside>
+
+                {cartItems.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-64 text-center">
+                    <div className="w-20 h-20 bg-[#DDC7FF]/30 rounded-full flex items-center justify-center mb-4">
+                      <svg
+                        width="32"
+                        height="32"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16 5 16H17M17 13V16M9 19.5A1.5 1.5 0 1 1 10.5 21A1.5 1.5 0 0 1 9 19.5ZM20 19.5A1.5 1.5 0 1 1 21.5 21A1.5 1.5 0 0 1 20 19.5Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-[#6153E0]/50"
+                        />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-[#6153E0] mb-2">
+                      Your cart is empty
+                    </h3>
+                    <p className="text-[#6153E0]/70 text-sm">
+                      Add some delicious ginger beer to get started!
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-4 mb-6">
+                      {cartItems.map((item, index) => (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-[#DDC7FF]/30 shadow-sm hover:shadow-md transition-all duration-200"
+                        >
+                          <div className="relative">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              width={60}
+                              height={60}
+                              className="rounded-xl object-cover"
+                            />
+                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                              {item.quantity}
+                            </div>
+                          </div>
+
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-[#6153E0] mb-1">
+                              {item.name}
+                            </h4>
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm text-[#6153E0]/70">
+                                ${item.price.toFixed(2)} each
+                              </p>
+                              <p className="font-bold text-[#6153E0]">
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => handleRemove(item.id)}
+                            className="p-2 rounded-xl bg-[#FF6E98]/10 text-[#FF6E98] hover:bg-[#FF6E98]/20 hover:scale-110 transition-all duration-200"
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M18 6L6 18M6 6L18 18"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* Summary */}
+                    <div className="space-y-4">
+                      <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-[#DDC7FF]/30">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[#6153E0]/70">Subtotal</span>
+                          <span className="font-semibold text-[#6153E0]">
+                            ${calculateSubtotal().toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mb-4">
+                          <span className="text-[#6153E0]/70">Shipping</span>
+                          <span className="font-semibold text-[#D6E012]">
+                            FREE
+                          </span>
+                        </div>
+                        <div className="border-t border-[#DDC7FF]/30 pt-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-lg font-bold text-[#6153E0]">
+                              Total
+                            </span>
+                            <span className="text-xl font-bold text-[#6153E0]">
+                              ${calculateSubtotal().toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleProceedToCheckout}
+                        className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={cartItems.length === 0}
+                      >
+                        Proceed to Checkout
+                        <span className="ml-2">→</span>
+                      </motion.button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
 
@@ -120,45 +235,45 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center px-4"
+            className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center px-4"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+              className="bg-[#FFFBF4]/95 backdrop-blur-lg rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-[#DDC7FF]"
             >
-              <h2 className="text-2xl font-bold text-center mb-3 text-yellow-900">
+              <h2 className="text-2xl font-bold text-center mb-3 text-[#6153E0]">
                 Checkout Options
               </h2>
-              <p className="text-sm text-center text-gray-600 mb-6">
+              <p className="text-sm text-center text-[#6153E0]/70 mb-6">
                 How would you like to proceed?
               </p>
 
               <div className="flex flex-col space-y-3">
                 <button
-                  className="bg-yellow-600 hover:bg-yellow-500 text-white font-semibold py-2 rounded-lg transition duration-200"
+                  className="bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-semibold py-3 rounded-2xl transition-all duration-200 shadow-lg"
                   onClick={() => {
                     setShowCheckoutOptions(false);
                     onClose();
-                    router.push('/checkout?guest=true');
+                    router.push("/checkout?guest=true");
                   }}
                 >
                   Continue as Guest
                 </button>
                 <button
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 rounded-lg transition duration-200"
+                  className="bg-[#DDC7FF]/30 hover:bg-[#DDC7FF]/50 text-[#6153E0] font-medium py-3 rounded-2xl transition-all duration-200 border border-[#DDC7FF]"
                   onClick={() => {
                     setShowCheckoutOptions(false);
                     onClose();
-                    router.push('/login?redirect=/checkout');
+                    router.push("/login?redirect=/checkout");
                   }}
                 >
                   Login to Checkout
                 </button>
                 <button
-                  className="text-sm text-gray-500 hover:text-gray-700 hover:underline mt-2 transition"
+                  className="text-sm text-[#6153E0]/70 hover:text-[#6153E0] hover:underline mt-2 transition-all duration-200"
                   onClick={() => setShowCheckoutOptions(false)}
                 >
                   Cancel

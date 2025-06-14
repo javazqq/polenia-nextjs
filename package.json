@@ -5,12 +5,11 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-  "start": "node backend/dist/server.js",
-  "server": "npm run dev --prefix backend",
-  "client": "npm run dev --prefix frontend",
-  "dev": "concurrently \"npm run server\" \"npm run client\""
-}
-,
+    "start": "node backend/dist/server.js",
+    "server": "npm run dev --prefix backend",
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/javazqq/polenia-nextjs.git"
@@ -23,7 +22,9 @@
   "homepage": "https://github.com/javazqq/polenia-nextjs#readme",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "react-hot-toast": "^2.5.2",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.2",

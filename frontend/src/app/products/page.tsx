@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
-import { Product } from '@/types/product';
-import { fetchProducts } from '@/lib/api/products';
-import { ArrowRight, ShoppingCart, Star, Filter, Search } from 'lucide-react';
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { Product } from "@/types/product";
+import { fetchProducts } from "@/lib/api/products";
+import { ArrowRight, ShoppingCart, Star, Heart } from "lucide-react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -21,9 +21,9 @@ const containerVariants = {
 
 const cardVariants = {
   hidden: { opacity: 0, y: 30, scale: 0.9 },
-  show: { 
-    opacity: 1, 
-    y: 0, 
+  show: {
+    opacity: 1,
+    y: 0,
     scale: 1,
     transition: {
       duration: 0.6,
@@ -36,6 +36,9 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const categories = ["All", "Classic", "Spicy", "Fruity", "Limited Edition"];
 
   useEffect(() => {
     fetchProducts()
@@ -50,12 +53,12 @@ export default function ProductsPage() {
   }, []);
 
   return (
-    <main className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-orange-50 relative overflow-hidden">
+    <main className="w-full min-h-screen bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-yellow-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#FF6E98]/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#FF991F]/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-[#DDC7FF]/30 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 px-6 md:px-16 py-20">
@@ -64,34 +67,71 @@ export default function ProductsPage() {
           className="text-center mb-16 max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <motion.span
-            className="inline-block px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-semibold mb-6"
+            className="inline-block px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] rounded-full text-sm font-semibold mb-6 border border-[#DDC7FF]/50"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
           >
             ✨ Premium Collection
           </motion.span>
-          
-          <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-900 via-orange-800 to-amber-900 mb-6">
+
+          <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] via-[#FF6E98] to-[#6153E0] mb-6">
             Our Products
           </h1>
-          
-          <p className="text-lg md:text-xl text-amber-800/70 max-w-2xl mx-auto leading-relaxed">
-            Discover our complete range of handcrafted ginger beers, each bottle a testament to quality and tradition
+
+          <p className="text-lg md:text-xl text-[#6153E0]/80 max-w-2xl mx-auto leading-relaxed">
+            Discover our complete range of handcrafted ginger beers, each bottle
+            a testament to quality and tradition
           </p>
+        </motion.div>
+
+        {/* Category Pills */}
+        <motion.div
+          className="flex gap-4 justify-center mb-12 overflow-x-auto pb-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          {categories.map((category) => (
+            <motion.button
+              key={category}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-6 py-2 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
+                selectedCategory === category
+                  ? "bg-[#6153E0] text-white shadow-lg shadow-[#6153E0]/25"
+                  : "bg-white/70 backdrop-blur-sm text-[#6153E0] hover:bg-white hover:shadow-md border border-[#DDC7FF]/40"
+              }`}
+            >
+              {category}
+            </motion.button>
+          ))}
         </motion.div>
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex justify-center items-center py-20">
-            <motion.div
-              className="w-12 h-12 border-4 border-amber-200 border-t-amber-600 rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            />
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto">
+            {[...Array(8)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-[#FFFBF4]/60 rounded-3xl overflow-hidden animate-pulse"
+              >
+                <div className="h-64 bg-[#DDC7FF]/30"></div>
+                <div className="p-6 space-y-3">
+                  <div className="h-6 bg-[#DDC7FF]/30 rounded w-3/4"></div>
+                  <div className="h-4 bg-[#DDC7FF]/20 rounded w-full"></div>
+                  <div className="h-4 bg-[#DDC7FF]/20 rounded w-2/3"></div>
+                  <div className="flex gap-2 mt-4">
+                    <div className="h-6 bg-[#DDC7FF]/20 rounded-full w-16"></div>
+                    <div className="h-6 bg-[#DDC7FF]/20 rounded-full w-16"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -102,9 +142,13 @@ export default function ProductsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-md mx-auto">
-              <p className="text-red-600 font-semibold mb-2">Oops! Something went wrong</p>
-              <p className="text-red-500 text-sm">Failed to load products. Please try again later.</p>
+            <div className="bg-[#FF6E98]/10 border border-[#FF6E98]/30 rounded-2xl p-8 max-w-md mx-auto backdrop-blur-sm">
+              <p className="text-[#FF6E98] font-semibold mb-2">
+                Oops! Something went wrong
+              </p>
+              <p className="text-[#6153E0]/70 text-sm">
+                Failed to load products. Please try again later.
+              </p>
             </div>
           </motion.div>
         )}
@@ -121,27 +165,35 @@ export default function ProductsPage() {
               <motion.div
                 key={product.id}
                 variants={cardVariants}
-                className="group"
+                className="group h-full"
               >
-                <div className="bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-white/50 group-hover:border-amber-200/50">
-                  <Link href={`/products/${product.id}`} className="block">
+                <div className="bg-[#FFFBF4]/90 backdrop-blur-sm rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-[#DDC7FF]/30 group-hover:border-[#FF6E98]/50 h-full flex flex-col">
+                  <Link
+                    href={`/products/${product.id}`}
+                    className="block flex-1 flex flex-col"
+                  >
                     {/* Image Container */}
-                    <div className="relative h-64 overflow-hidden bg-gradient-to-br from-amber-100 to-orange-100">
+                    <div className="relative h-64 overflow-hidden bg-gradient-to-br from-[#DDC7FF]/30 to-[#FF6E98]/20">
                       {/* Badge */}
                       {index < 3 && (
                         <div className="absolute top-4 left-4 z-10">
-                          <span className="bg-amber-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                          <span className="bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white text-xs font-bold px-3 py-1 rounded-full">
                             Popular
                           </span>
                         </div>
                       )}
-                      
-                      {/* Rating 
-                      <div className="absolute top-4 right-4 z-10 flex items-center space-x-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
-                        <Star size={12} className="text-yellow-500 fill-current" />
-                        <span className="text-xs font-semibold text-gray-700">4.9</span>
+
+                      {/* Heart/Favorite Button */}
+                      <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-[#6153E0] shadow-lg hover:text-[#FF6E98] transition-colors"
+                        >
+                          <Heart size={14} />
+                        </motion.button>
                       </div>
-                      */}
+
                       {/* Product Image */}
                       <Image
                         src={product.image}
@@ -149,15 +201,39 @@ export default function ProductsPage() {
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      
-                      {/* Overlay gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                      {/* Enhanced overlay with quick add button */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#6153E0]/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <motion.button
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{
+                              y: 0,
+                              opacity: 1,
+                              transition: { delay: 0.1 },
+                            }}
+                            className="w-full bg-white/90 backdrop-blur-sm text-[#6153E0] py-2 rounded-xl font-semibold hover:bg-white transition-all duration-200 flex items-center justify-center gap-2"
+                          >
+                            <ShoppingCart size={16} />
+                            Quick Add
+                          </motion.button>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Content */}
-                    <div className="p-6">
+                    <div className="p-6 flex-1 flex flex-col">
+                      {/* Product stats */}
+                      <div className="flex justify-between items-center text-xs text-[#6153E0]/60 mb-3">
+                        <span className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-[#D6E012] rounded-full"></div>
+                          4.8★ (24 reviews)
+                        </span>
+                        <span>350ml</span>
+                      </div>
+
                       <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-xl font-bold text-amber-900 group-hover:text-amber-800 transition-colors line-clamp-1">
+                        <h3 className="text-xl font-bold text-[#6153E0] group-hover:text-[#FF6E98] transition-colors line-clamp-1">
                           {product.name}
                         </h3>
                         <motion.div
@@ -165,20 +241,37 @@ export default function ProductsPage() {
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                         >
-                          <ArrowRight size={20} className="text-amber-600" />
+                          <ArrowRight size={20} className="text-[#6153E0]" />
                         </motion.div>
                       </div>
-                      
-                      <p className="text-amber-800/70 text-sm line-clamp-2 mb-4 leading-relaxed">
+
+                      <p className="text-[#6153E0]/70 text-sm line-clamp-2 mb-4 leading-relaxed h-10 flex items-start">
                         {product.description}
                       </p>
 
+                      {/* Ingredient highlights */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="flex -space-x-1">
+                          {["🫚", "🍋", "🌿"].map((emoji, i) => (
+                            <span
+                              key={i}
+                              className="w-6 h-6 bg-white/80 rounded-full flex items-center justify-center text-xs border border-[#DDC7FF]/30"
+                            >
+                              {emoji}
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-xs text-[#6153E0]/60">
+                          Fresh ingredients
+                        </span>
+                      </div>
+
                       {/* Features */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                      <div className="flex flex-wrap gap-2 mb-4 mt-auto">
+                        <span className="text-xs bg-[#D6E012]/20 text-[#6153E0] px-2 py-1 rounded-full border border-[#D6E012]/30">
                           Natural
                         </span>
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                        <span className="text-xs bg-[#DDC7FF]/30 text-[#6153E0] px-2 py-1 rounded-full border border-[#DDC7FF]/50">
                           Organic
                         </span>
                       </div>
@@ -189,16 +282,18 @@ export default function ProductsPage() {
                   <div className="px-6 pb-6">
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-2xl font-bold text-amber-900">
+                        <span className="text-2xl font-bold text-[#6153E0]">
                           ${product.price.toFixed(2)}
                         </span>
-                        <span className="text-sm text-amber-700/60 ml-1">each</span>
+                        <span className="text-sm text-[#6153E0]/60 ml-1">
+                          each
+                        </span>
                       </div>
-                      
+
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:from-amber-700 hover:to-orange-700 transition-all duration-300 flex items-center space-x-2 shadow-lg"
+                        className="bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:from-[#FF6E98] hover:to-[#FF991F] transition-all duration-300 flex items-center space-x-2 shadow-lg"
                       >
                         <ShoppingCart size={16} />
                         <span>Add</span>
@@ -219,7 +314,7 @@ export default function ProductsPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
-            <p className="text-amber-800/60 text-sm">
+            <p className="text-[#6153E0]/60 text-sm">
               Showing {products.length} products • Handcrafted with love
             </p>
           </motion.div>

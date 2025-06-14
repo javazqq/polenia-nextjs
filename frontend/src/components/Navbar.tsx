@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store"; // Adjust path if needed
 import { useLogoutMutation } from "@/slices/usersApiSlice"; // Add logout mutation
@@ -28,6 +28,8 @@ export default function Navbar() {
   const [isClient, setIsClient] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state: RootState) => state.auth);
@@ -37,13 +39,30 @@ export default function Navbar() {
     setIsClient(true);
   }, []);
 
-  // Handle scroll effect
+  // Handle scroll effect and auto-hide
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      const nearBottom = scrollY + windowHeight >= docHeight - 100;
+      if (scrollY < 10) {
+        setVisible(true);
+        lastScrollY.current = scrollY;
+        return;
+      }
+      if (!nearBottom && scrollY > lastScrollY.current && scrollY > 60) {
+        setVisible(false); // scrolling down
+      } else if (scrollY < lastScrollY.current) {
+        setVisible(true); // scrolling up
+      } else if (nearBottom) {
+        setVisible(true); // always show near bottom
+      }
+      lastScrollY.current = scrollY;
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Calculate total quantity in cart
@@ -79,12 +98,12 @@ export default function Navbar() {
     <>
       <motion.nav
         initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        animate={{ y: visible ? 0 : -100 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-white/90 backdrop-blur-lg shadow-lg border-b border-amber-100'
-            : 'bg-white/80 backdrop-blur-sm'
+            ? "bg-[#FFFBF4]/90 backdrop-blur-lg shadow-lg border-b border-[#DDC7FF]"
+            : "bg-[#FFFBF4]/80 backdrop-blur-sm"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -102,12 +121,14 @@ export default function Navbar() {
                 whileTap={{ scale: 0.95 }}
                 className="flex items-center space-x-2"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-amber-600 to-orange-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-[#6153E0] to-[#FF6E98] rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">P</span>
                 </div>
-                <span className={`text-xl font-bold transition-colors ${
-                  scrolled ? 'text-amber-900' : 'text-amber-800'
-                }`}>
+                <span
+                  className={`text-xl font-bold transition-colors ${
+                    scrolled ? "text-[#6153E0]" : "text-[#6153E0]"
+                  }`}
+                >
                   Polenia
                 </span>
               </motion.div>
@@ -124,8 +145,8 @@ export default function Navbar() {
                       onClick={() => setCartOpen(true)}
                       className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 relative ${
                         scrolled
-                          ? 'text-amber-800 hover:bg-amber-50 hover:text-amber-900'
-                          : 'text-amber-700 hover:bg-white/50 hover:text-amber-900'
+                          ? "text-[#6153E0] hover:bg-[#DDC7FF]/30 hover:text-[#6153E0]"
+                          : "text-[#6153E0] hover:bg-[#FFFBF4] hover:text-[#6153E0]"
                       }`}
                     >
                       <ShoppingCart size={18} />
@@ -134,7 +155,7 @@ export default function Navbar() {
                         <motion.span
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                          className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-r from-[#FF6E98] to-[#FF991F] text-white text-xs font-bold rounded-full flex items-center justify-center"
                         >
                           {totalItems}
                         </motion.span>
@@ -150,8 +171,8 @@ export default function Navbar() {
                         scroll={scroll ?? true}
                         className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
                           scrolled
-                            ? 'text-amber-800 hover:bg-amber-50 hover:text-amber-900'
-                            : 'text-amber-700 hover:bg-white/50 hover:text-amber-900'
+                            ? "text-[#6153E0] hover:bg-[#DDC7FF]/30 hover:text-[#6153E0]"
+                            : "text-[#6153E0] hover:bg-[#FFFBF4] hover:text-[#6153E0]"
                         }`}
                       >
                         {label}
@@ -172,11 +193,11 @@ export default function Navbar() {
                         onClick={() => setDropdownOpen((prev) => !prev)}
                         className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 ${
                           scrolled
-                            ? 'text-amber-800 hover:bg-amber-50'
-                            : 'text-amber-700 hover:bg-white/50'
+                            ? "text-[#6153E0] hover:bg-[#DDC7FF]/30"
+                            : "text-[#6153E0] hover:bg-[#FFFBF4]"
                         }`}
                       >
-                        <div className="w-8 h-8 bg-gradient-to-br from-amber-600 to-orange-600 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#6153E0] to-[#FF6E98] rounded-full flex items-center justify-center">
                           <User size={16} className="text-white" />
                         </div>
                         <span>{userInfo.name}</span>
@@ -188,15 +209,17 @@ export default function Navbar() {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
                             transition={{ duration: 0.2 }}
-                            className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-lg text-gray-800 rounded-2xl shadow-xl border border-amber-100 overflow-hidden"
+                            className="absolute right-0 mt-2 w-48 bg-[#FFFBF4]/95 backdrop-blur-lg text-[#6153E0] rounded-2xl shadow-xl border border-[#DDC7FF] overflow-hidden"
                           >
                             <button
                               onClick={handleLogout}
                               disabled={isLogoutLoading}
-                              className="w-full text-left px-4 py-3 hover:bg-amber-50 flex items-center space-x-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="w-full text-left px-4 py-3 hover:bg-[#DDC7FF]/30 flex items-center space-x-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <LogOut size={16} />
-                              <span>{isLogoutLoading ? "Logging out..." : "Logout"}</span>
+                              <span>
+                                {isLogoutLoading ? "Logging out..." : "Logout"}
+                              </span>
                             </button>
                           </motion.div>
                         )}
@@ -209,7 +232,7 @@ export default function Navbar() {
                     >
                       <Link
                         href="/login"
-                        className={`px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 shadow-lg hover:shadow-xl`}
+                        className={`px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white hover:from-[#FF6E98] hover:to-[#FF991F] shadow-lg hover:shadow-xl`}
                       >
                         <User size={16} />
                         <span>Login</span>
@@ -226,7 +249,7 @@ export default function Navbar() {
               whileTap={{ scale: 0.9 }}
               onClick={() => setMenuOpen((prev) => !prev)}
               aria-label="Toggle menu"
-              className="md:hidden z-50 p-2 rounded-xl bg-white/20 backdrop-blur-sm"
+              className="md:hidden z-50 p-2 rounded-xl bg-[#FFFBF4]/20 backdrop-blur-sm"
             >
               <AnimatedMenuIcon isOpen={menuOpen} />
             </motion.button>
@@ -252,65 +275,69 @@ export default function Navbar() {
               className="absolute inset-0 bg-black/20 backdrop-blur-sm"
               onClick={() => setMenuOpen(false)}
             />
-            
+
             {/* Menu Panel */}
             <motion.aside
-              initial={{ x: '-100%' }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="absolute left-0 top-16 w-80 h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-lg shadow-2xl rounded-r-3xl border-r border-amber-100 overflow-y-auto"
+              exit={{ x: "-100%" }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="absolute left-0 top-16 w-80 h-[calc(100vh-4rem)] bg-[#FFFBF4]/95 backdrop-blur-lg shadow-2xl rounded-r-3xl border-r border-[#DDC7FF] overflow-y-auto"
             >
               <div className="p-6">
                 <div className="space-y-2">
-                  {navLinks.map(({ href, label, icon: Icon, scroll, showCount }) => (
-                    <motion.div
-                      key={label}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 }}
-                      className="w-full"
-                    >
-                      {label === 'Cart' ? (
-                        <button
-                          onClick={() => {
-                            setMenuOpen(false);
-                            setCartOpen(true);
-                          }}
-                          className="w-full flex items-center space-x-4 p-4 rounded-2xl text-amber-900 hover:bg-amber-50 transition-all duration-200 group"
-                        >
-                          <div className="w-10 h-10 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center group-hover:from-amber-200 group-hover:to-orange-200 transition-all">
-                            <Icon size={20} className="text-amber-700" />
-                          </div>
-                          <span className="font-medium flex-1 text-left">{label}</span>
-                          {showCount && isClient && totalItems > 0 && (
-                            <span className="w-6 h-6 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                              {totalItems}
+                  {navLinks.map(
+                    ({ href, label, icon: Icon, scroll, showCount }) => (
+                      <motion.div
+                        key={label}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="w-full"
+                      >
+                        {label === "Cart" ? (
+                          <button
+                            onClick={() => {
+                              setMenuOpen(false);
+                              setCartOpen(true);
+                            }}
+                            className="w-full flex items-center space-x-4 p-4 rounded-2xl text-[#6153E0] hover:bg-[#DDC7FF]/30 transition-all duration-200 group"
+                          >
+                            <div className="w-10 h-10 bg-gradient-to-br from-[#DDC7FF] to-[#FF6E98]/30 rounded-xl flex items-center justify-center group-hover:from-[#DDC7FF] group-hover:to-[#FF6E98]/50 transition-all">
+                              <Icon size={20} className="text-[#6153E0]" />
+                            </div>
+                            <span className="font-medium flex-1 text-left">
+                              {label}
                             </span>
-                          )}
-                        </button>
-                      ) : (
-                        <Link
-                          href={href}
-                          scroll={scroll ?? true}
-                          onClick={() => setMenuOpen(false)}
-                          className="w-full flex items-center space-x-4 p-4 rounded-2xl text-amber-900 hover:bg-amber-50 transition-all duration-200 group"
-                        >
-                          <div className="w-10 h-10 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center group-hover:from-amber-200 group-hover:to-orange-200 transition-all">
-                            <Icon size={20} className="text-amber-700" />
-                          </div>
-                          <span className="font-medium">{label}</span>
-                        </Link>
-                      )}
-                    </motion.div>
-                  ))}
+                            {showCount && isClient && totalItems > 0 && (
+                              <span className="w-6 h-6 bg-gradient-to-r from-[#FF6E98] to-[#FF991F] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                {totalItems}
+                              </span>
+                            )}
+                          </button>
+                        ) : (
+                          <Link
+                            href={href}
+                            scroll={scroll ?? true}
+                            onClick={() => setMenuOpen(false)}
+                            className="w-full flex items-center space-x-4 p-4 rounded-2xl text-[#6153E0] hover:bg-[#DDC7FF]/30 transition-all duration-200 group"
+                          >
+                            <div className="w-10 h-10 bg-gradient-to-br from-[#DDC7FF] to-[#FF6E98]/30 rounded-xl flex items-center justify-center group-hover:from-[#DDC7FF] group-hover:to-[#FF6E98]/50 transition-all">
+                              <Icon size={20} className="text-[#6153E0]" />
+                            </div>
+                            <span className="font-medium">{label}</span>
+                          </Link>
+                        )}
+                      </motion.div>
+                    )
+                  )}
 
                   {/* Mobile Auth */}
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="pt-4 border-t border-amber-100"
+                    className="pt-4 border-t border-[#DDC7FF]"
                   >
                     {userInfo ? (
                       <button
@@ -319,20 +346,20 @@ export default function Navbar() {
                           setMenuOpen(false);
                         }}
                         disabled={isLogoutLoading}
-                        className="w-full flex items-center space-x-4 p-4 rounded-2xl text-amber-900 hover:bg-amber-50 transition-all duration-200 group disabled:opacity-50"
+                        className="w-full flex items-center space-x-4 p-4 rounded-2xl text-[#6153E0] hover:bg-[#DDC7FF]/30 transition-all duration-200 group disabled:opacity-50"
                       >
-                        <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center">
-                          <LogOut size={20} className="text-red-600" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#FF6E98] to-[#FF991F] rounded-xl flex items-center justify-center">
+                          <LogOut size={20} className="text-white" />
                         </div>
                         <span className="font-medium">
-                          {isLogoutLoading ? 'Logging out...' : 'Logout'}
+                          {isLogoutLoading ? "Logging out..." : "Logout"}
                         </span>
                       </button>
                     ) : (
                       <Link
                         href="/login"
                         onClick={() => setMenuOpen(false)}
-                        className="w-full flex items-center space-x-4 p-4 rounded-2xl bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-lg"
+                        className="w-full flex items-center space-x-4 p-4 rounded-2xl bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white hover:from-[#FF6E98] hover:to-[#FF991F] transition-all duration-200 shadow-lg"
                       >
                         <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                           <User size={20} />

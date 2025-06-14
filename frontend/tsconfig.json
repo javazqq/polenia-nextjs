@@ -26,6 +26,6 @@
     "esm": true,
     "experimentalSpecifierResolution": "node"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/pages/api/hello.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/pages/api/hello.js", "tailwind.config.js"],
   "exclude": ["node_modules"]
 }

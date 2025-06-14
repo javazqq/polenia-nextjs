@@ -1,15 +1,17 @@
 "use client";
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import poleniaLogo from '/public/images/polenia-logo.png';
 
 export default function Hero() {
   return (
     <div className="h-screen relative overflow-hidden">
-      <section className="bg-gradient-to-br from-amber-50 via-amber-100 to-orange-200 text-center h-full flex flex-col justify-center items-center relative">
+      <section className="bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] text-center h-full flex flex-col justify-center items-center relative">
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-300/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-orange-300/20 rounded-full blur-3xl"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#FF6E98]/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#FF991F]/20 rounded-full blur-3xl"></div>
         </div>
 
         {/* Hero content */}
@@ -24,33 +26,38 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full text-sm font-medium text-amber-800 mb-6 shadow-lg"
+            className="inline-flex items-center px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm rounded-full text-sm font-medium text-[#6153E0] mb-6 shadow-lg border border-[#DDC7FF]/50"
           >
             ✨ Handcrafted with Love
           </motion.div>
 
           {/* Main heading */}
-          <motion.h1 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-7xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-900 via-orange-800 to-amber-900 mb-6 leading-tight"
+            className="flex justify-center"
           >
-            POLENIA
-            <br />
-            <span className="text-4xl md:text-5xl">Ginger Beer</span>
-          </motion.h1>
+            <Image
+              src={poleniaLogo}
+              alt="Polenia Ginger Beer Logo"
+              width={700}
+              height={220}
+              priority
+              className="mx-auto"
+            />
+          </motion.div>
 
           {/* Subtitle */}
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-xl md:text-2xl text-amber-800/80 mb-8 max-w-2xl mx-auto leading-relaxed font-light"
+            className="text-xl md:text-2xl text-[#6153E0]/80 mb-8 max-w-2xl mx-auto leading-relaxed font-light"
           >
             Experience the perfect blend of spicy ginger and refreshing zest.
             <br />
-            <span className="font-medium">Crafted for the bold.</span>
+            <span className="font-medium text-[#6153E0]">Crafted for the bold.</span>
           </motion.p>
 
           {/* CTA Buttons */}
@@ -61,15 +68,15 @@ export default function Hero() {
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <a href="/products" className="group">
-              <button className="bg-gradient-to-r from-amber-900 to-orange-800 text-white px-10 py-4 rounded-2xl text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-amber-800 group-hover:to-orange-700">
+              <button className="bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-10 py-4 rounded-2xl text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-[#FF6E98] group-hover:to-[#FF991F]">
                 Order Now
                 <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300 inline-block">→</span>
               </button>
             </a>
             <a href='/about' className="group">
-            <button className="bg-white/80 backdrop-blur-sm text-amber-900 px-10 py-4 rounded-2xl text-lg font-semibold hover:bg-white hover:shadow-xl transition-all duration-300 border border-amber-200">
-              Learn More
-            </button>
+              <button className="bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] px-10 py-4 rounded-2xl text-lg font-semibold hover:bg-[#FFFBF4] hover:shadow-xl transition-all duration-300 border border-[#DDC7FF]">
+                Learn More
+              </button>
             </a>
           </motion.div>
 
@@ -78,18 +85,18 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.6 }}
-            className="flex flex-wrap justify-center gap-8 mt-12 text-amber-800/70"
+            className="flex flex-wrap justify-center gap-8 mt-12 text-[#6153E0]/70"
           >
             <div className="flex items-center gap-2 text-sm font-medium">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span className="w-2 h-2 bg-[#D6E012] rounded-full"></span>
               100% Natural
             </div>
             <div className="flex items-center gap-2 text-sm font-medium">
-              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+              <span className="w-2 h-2 bg-[#6153E0] rounded-full"></span>
               Small Batch
             </div>
             <div className="flex items-center gap-2 text-sm font-medium">
-              <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+              <span className="w-2 h-2 bg-[#FF991F] rounded-full"></span>
               Locally Sourced
             </div>
           </motion.div>
@@ -112,15 +119,15 @@ export default function Hero() {
               58-18 88-18 58 18 88 18v44h-352z"
             />
             <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.8)" />
-              <stop offset="100%" stopColor="rgba(251, 191, 36, 0.3)" />
+              <stop offset="0%" stopColor="rgba(255, 251, 244, 0.8)" />
+              <stop offset="100%" stopColor="rgba(97, 83, 224, 0.3)" />
             </linearGradient>
           </defs>
           <g className="parallax">
             <use xlinkHref="#gentle-wave" x="48" y="0" fill="url(#waveGradient)" />
-            <use xlinkHref="#gentle-wave" x="48" y="3" fill="rgba(255, 220, 180, 0.6)" />
-            <use xlinkHref="#gentle-wave" x="48" y="5" fill="rgba(255, 200, 150, 0.5)" />
-            <use xlinkHref="#gentle-wave" x="48" y="7" fill="rgba(251, 146, 60, 0.9)" />
+            <use xlinkHref="#gentle-wave" x="48" y="3" fill="rgba(221, 199, 255, 0.6)" />
+            <use xlinkHref="#gentle-wave" x="48" y="5" fill="rgba(255, 110, 152, 0.5)" />
+            <use xlinkHref="#gentle-wave" x="48" y="7" fill="rgba(97, 83, 224, 0.9)" />
           </g>
         </svg>
       </div>
