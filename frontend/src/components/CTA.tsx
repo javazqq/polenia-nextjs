@@ -5,7 +5,7 @@ import { ArrowRight, ShoppingCart } from 'lucide-react';
 
 export default function CTA() {
   return (
-    <section className="w-full px-6 md:px-16 py-16 bg-gradient-to-br from-slate-50 via-amber-50 to-orange-50 relative overflow-hidden">
+    <section className="min-h-screen w-full px-6 md:px-16 py-16 bg-gradient-to-br from-slate-50 via-amber-50 to-orange-50 relative overflow-hidden">
       {/* Subtle background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-amber-200/20 rounded-full blur-2xl"></div>

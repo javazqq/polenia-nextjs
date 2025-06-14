@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { fetchProducts } from "@/lib/api/products";
@@ -11,20 +12,25 @@ import MovingBanner from "./Banner";
 
 export default function FeaturedProductsNextApi() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
+  const { ref, inView} = useInView({ triggerOnce: true, threshold: 0.2 });
+
   useEffect(() => {
-    fetchProducts()
-      .then((data) => {
-        setProducts(data);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsError(true);
-        setIsLoading(false);
-      });
-  }, []);
+    if (inView && products.length === 0 && !isLoading) {
+      setIsLoading(true);
+      fetchProducts()
+        .then((data) => {
+          setProducts(data);
+          setIsLoading(false);
+        })
+        .catch(() => {
+          setIsError(true);
+          setIsLoading(false);
+        });
+    }
+  }, [inView, products.length, isLoading]);
 
   const featured = products.slice(0, 3);
 
@@ -54,11 +60,13 @@ export default function FeaturedProductsNextApi() {
 
   return (
     <>
-    <section className="pt-16 pb-8 bg-gradient-to-br from-amber-50 to-orange-50 relative">
-    <MovingBanner />
+    <section>
+    <MovingBanner text={"🌿 Ginger Beer • Naturally Breeeeewed • Chill & Refreshing • Purple Citrus Vibes • Limited Batch • Get Yours 🌸"} />
     </section>
 
-    <section className="w-full px-6 md:px-16 py-24 bg-gradient-to-br from-slate-50 via-amber-50 to-orange-50 relative overflow-hidden">
+    <section 
+      ref={ref}
+      className="w-full px-6 md:px-16 py-24 bg-gradient-to-br from-slate-50 via-amber-50 to-orange-50 relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-200/30 rounded-full blur-3xl"></div>

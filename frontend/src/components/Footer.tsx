@@ -189,7 +189,7 @@ export default function Footer() {
         {/* Footer Bottom Section */}
         <div className="border-t border-white/20 pt-6">
           <p className="text-center text-[#DDC7FF] text-sm">
-            &copy; {new Date().getFullYear()} Ginger Beer. All rights reserved.
+            &copy; {new Date().getFullYear()} Polenia. All rights reserved.
           </p>
         </div>
       </div>
