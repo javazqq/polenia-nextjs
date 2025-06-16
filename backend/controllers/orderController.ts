@@ -5,6 +5,7 @@ import pool from "../config/db";
 interface AuthenticatedRequest extends Request {
   user: {
     id: number;
+    role: string;
     // Add other user properties as needed
   };
 }
@@ -150,14 +151,44 @@ export const getOrderById = async (
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
+  const user = (req as AuthenticatedRequest).user;
 
   try {
+    // First, get the order
     const order = await pool.query(`SELECT * FROM orders WHERE id = $1`, [id]);
+    
     if (order.rows.length === 0) {
       res.status(404).json({ message: "Order not found" });
       return;
     }
 
+    const orderData = order.rows[0];
+
+    // Check if user is authorized to view this order
+    // Allow access if:
+    // 1. User is admin
+    // 2. User owns the order (user_id matches)
+    // 3. It's a guest order and no user_id (you might want to add additional checks here)
+    const isAdmin = user.role === 'admin';
+    const isOwner = orderData.user_id === user.id;
+    const isGuestOrder = !orderData.user_id; // Guest order has no user_id
+
+    if (!isAdmin && !isOwner && !isGuestOrder) {
+      res.status(403).json({ message: "Not authorized to view this order" });
+      return;
+    }
+
+    // If it's a guest order and user is not admin, you might want additional verification
+    // For example, matching guest_email with user's email
+    if (isGuestOrder && !isAdmin) {
+      // Optional: Add email verification for guest orders
+      // if (orderData.guest_email !== user.email) {
+      //   res.status(403).json({ message: "Not authorized to view this order" });
+      //   return;
+      // }
+    }
+
+    // Get order items
     const items = await pool.query(
       `SELECT oi.*, p.name, p.image FROM order_items oi
        JOIN products p ON oi.product_id = p.id
@@ -165,7 +196,7 @@ export const getOrderById = async (
       [id]
     );
 
-    res.json({ ...order.rows[0], items: items.rows });
+    res.json({ ...orderData, items: items.rows });
   } catch (error) {
     console.error("Get order error:", error);
     res.status(500).json({ message: "Failed to fetch order" });

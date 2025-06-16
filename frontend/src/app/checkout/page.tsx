@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import { useState } from "react";
 import { clearCartItems } from "@/slices/cartSlice";
+import { setCredentials } from "@/slices/authSlice";
 import Image from "next/image";
 import { Check, Lock } from "lucide-react";
 
@@ -30,87 +31,102 @@ export default function CheckoutPage() {
   console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
 
   const handlePlaceOrder = async () => {
-    setError("");
-    if (isGuest && (!name || !email || !address)) {
-      setError("Please fill all guest information fields.");
-      return;
-    }
-    if (cartItems.length === 0) {
-      setError("Your cart is empty.");
-      return;
-    }
+  setError("");
+  if (isGuest && (!name || !email || !address)) {
+    setError("Please fill all guest information fields.");
+    return;
+  }
+  if (cartItems.length === 0) {
+    setError("Your cart is empty.");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      // Si es invitado, crear cuenta temporal
-      if (isGuest) {
-        const guestRes = await fetch("/api/users/guest", {
-          method: "POST",
-          credentials: "include",
-        });
+  try {
+    let guestToken = null;
+    
+    // Si es invitado, crear cuenta temporal
+    if (isGuest) {
+      const guestRes = await fetch("/api/users/guest", {
+        method: "POST",
+        credentials: "include",
+      });
 
-        if (!guestRes.ok) {
-          const guestData = await guestRes.json();
-          throw new Error(guestData.message || "Failed to create guest user");
-        }
+      if (!guestRes.ok) {
+        const guestData = await guestRes.json();
+        throw new Error(guestData.message || "Failed to create guest user");
       }
 
-      // 1. Create order in backend
-      const orderRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            items: cartItems,
-            total: calculateSubtotal(),
-            guest_name: isGuest ? name : undefined,
-            guest_email: isGuest ? email : undefined,
-            guest_address: isGuest ? address : undefined,
-          }),
-        }
+      const guestData = await guestRes.json();
+      guestToken = guestData.token; // Store token for URL, don't dispatch to Redux
+    }
+
+    // 1. Create order in backend
+    const orderRes = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          items: cartItems,
+          total: calculateSubtotal(),
+          guest_name: isGuest ? name : undefined,
+          guest_email: isGuest ? email : undefined,
+          guest_address: isGuest ? address : undefined,
+        }),
+      }
+    );
+
+    const orderData = await orderRes.json();
+    if (!orderRes.ok) {
+      throw new Error(orderData.message || "Failed to create order");
+    }
+
+    // Crear preferencia de pago en el backend
+    const paymentRes = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-preference`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          cartItems,
+          userEmail: isGuest ? email : undefined,
+          orderId: orderData.orderId,
+          guestToken: guestToken, // Pass guest token to payment
+        }),
+      }
+    );
+
+    const paymentData = await paymentRes.json();
+
+    if (!paymentRes.ok) {
+      throw new Error(
+        paymentData.error || "Failed to create payment preference"
       );
-
-      const orderData = await orderRes.json();
-      if (!orderRes.ok) {
-        throw new Error(orderData.message || "Failed to create order");
-      }
-
-      // Crear preferencia de pago en el backend
-      const paymentRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-preference`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            cartItems,
-            userEmail: isGuest ? email : undefined,
-            orderId: orderData.orderId,
-          }),
-        }
-      );
-
-      const paymentData = await paymentRes.json();
-
-      if (!paymentRes.ok) {
-        throw new Error(
-          paymentData.error || "Failed to create payment preference"
-        );
-      }
-
-      dispatch(clearCartItems());
-
-      // Redirigir a MercadoPago
-      window.location.href = paymentData.checkoutUrl;
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
     }
-  };
+
+    dispatch(clearCartItems());
+
+    // Store order info for success page
+    const orderInfo = {
+      orderId: orderData.orderId,
+      guestToken: guestToken,
+      isGuest: isGuest
+    };
+    
+    sessionStorage.setItem('pendingOrder', JSON.stringify(orderInfo));
+
+    // Redirigir a MercadoPago
+    window.location.href = paymentData.checkoutUrl;
+  } catch (err: any) {
+    setError(err.message || "Something went wrong.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] relative overflow-hidden pt-20">

@@ -1,13 +1,52 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle, Mail, Package, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
-  const orderId = searchParams?.get("orderId");
+  const router = useRouter();
+  const [orderInfo, setOrderInfo] = useState<{
+    orderId: string;
+    guestToken?: string;
+    isGuest?: boolean;
+  } | null>(null);
+
+  // Get orderId from URL params (from MercadoPago redirect)
+  const orderIdFromUrl = searchParams?.get("orderId");
+
+  useEffect(() => {
+    // First priority: Get order info from sessionStorage (our stored data)
+    const pendingOrderInfo = sessionStorage.getItem('pendingOrder');
+    
+    if (pendingOrderInfo) {
+      const parsedOrderInfo = JSON.parse(pendingOrderInfo);
+      setOrderInfo(parsedOrderInfo);
+      
+      // Clear the pending order from sessionStorage
+      sessionStorage.removeItem('pendingOrder');
+    } else if (orderIdFromUrl) {
+      // Fallback: Use orderId from URL if no sessionStorage data
+      setOrderInfo({ orderId: orderIdFromUrl });
+    }
+  }, [orderIdFromUrl]);
+
+  // Generate the correct order link based on user type
+  const getOrderLink = () => {
+    if (!orderInfo) return '#';
+    
+    if (orderInfo.isGuest && orderInfo.guestToken) {
+      return `/order/${orderInfo.orderId}?guestToken=${orderInfo.guestToken}`;
+    } else {
+      return `/order/${orderInfo.orderId}`;
+    }
+  };
+
+  const orderId = orderInfo?.orderId || orderIdFromUrl;
 
   return (
     <section className="min-h-screen bg-[#FFFBF4] flex items-center justify-center py-12 px-4">
@@ -17,6 +56,15 @@ export default function PaymentSuccessPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
+        {/* Success Icon */}
+        <motion.div
+          className="w-20 h-20 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
+        >
+          <CheckCircle className="w-10 h-10 text-white" />
+        </motion.div>
 
         {/* Main Content Card */}
         <motion.div
@@ -32,7 +80,7 @@ export default function PaymentSuccessPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.6 }}
             >
-              Payment Successful
+              Payment Successful!
             </motion.h1>
 
             <motion.p
@@ -57,9 +105,11 @@ export default function PaymentSuccessPage() {
                   <Package className="w-5 h-5 text-[#6153E0]" />
                   Order Confirmation
                 </p>
-                <code className="block bg-white text-[#6153E0] p-4 rounded-lg text-lg font-mono border border-gray-200 font-semibold tracking-wider">
-                  {orderId}
-                </code>
+                <Link href={getOrderLink()} className="block">
+                  <code className="block bg-white text-[#6153E0] p-4 rounded-lg text-lg font-mono border border-gray-200 font-semibold tracking-wider hover:bg-gray-50 transition-colors cursor-pointer">
+                    {orderId}
+                  </code>
+                </Link>
               </motion.div>
             )}
 
@@ -89,13 +139,30 @@ export default function PaymentSuccessPage() {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
 
-              <Link
-                href="/profile"
-                className="flex-1 bg-gray-100 text-gray-700 font-semibold py-4 px-8 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                View Orders
-              </Link>
+              {orderId && (
+                <Link
+                  href={getOrderLink()}
+                  className="flex-1 bg-gray-100 text-gray-700 font-semibold py-4 px-8 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  View Order
+                </Link>
+              )}
             </motion.div>
+
+            {/* Guest Notice */}
+            {orderInfo?.isGuest && (
+              <motion.div
+                className="bg-blue-50 border border-blue-200 rounded-xl p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.1, duration: 0.6 }}
+              >
+                <p className="text-blue-700 text-sm">
+                  💡 <strong>Guest Order:</strong> Save this page link to access your order later, 
+                  or consider creating an account for easier order tracking.
+                </p>
+              </motion.div>
+            )}
           </div>
         </motion.div>
       </motion.div>
