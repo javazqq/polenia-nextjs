@@ -15,9 +15,9 @@ export default function Hero() {
         {/* Hero content */}
         <div className="relative z-10 max-w-4xl mx-auto px-6">
           {/* Badge */}
-          <div className="inline-flex items-center px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm rounded-full text-sm font-medium text-[#6153E0] mb-6 shadow-lg border border-[#DDC7FF]/50 opacity-0 animate-fade-in-down">
+          {/* <div className="inline-flex items-center px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm rounded-full text-sm font-medium text-[#6153E0] mb-6 shadow-lg border border-[#DDC7FF]/50 opacity-0 animate-fade-in-down">
             ✨ Handcrafted with Love
-          </div>
+          </div> */}
 
           {/* Main heading */}
           <div className="flex justify-center opacity-0 animate-fade-in-down [animation-delay:150ms]">
@@ -43,9 +43,9 @@ export default function Hero() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center opacity-0 animate-fade-in-down [animation-delay:500ms]">
             <a href="/products" className="group">
-              <button className="bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-10 py-4 rounded-2xl text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-[#FF6E98] group-hover:to-[#FF991F]">
+              <button className="bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-10 py-4 rounded-2xl text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-[#FF6E98] group-hover:to-[#FF991F] flex items-center">
                 Order Now
-                <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300 inline-block">
+                <span className="ml-2 flex items-center group-hover:translate-x-1 transition-transform duration-300">
                   <MoveRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </button>

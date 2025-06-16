@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 
 interface Product {
   id: number;
@@ -202,30 +201,16 @@ export default function Dashboard() {
       {/* Header Section */}
       <div className="bg-white shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: {
-                opacity: 1,
-                y: 0,
-                transition: { duration: 0.6, ease: "easeOut" },
-              },
-            }}
-          >
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900">
-                  Admin Dashboard
-                </h1>
-                <p className="text-lg text-gray-600 mt-2">
-                  Complete management system for users, products, and orders
-                </p>
-              </div>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 transition-all duration-500 opacity-100 translate-y-0">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900">
+                Admin Dashboard
+              </h1>
+              <p className="text-lg text-gray-600 mt-2">
+                Complete management system for users, products, and orders
+              </p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 
@@ -263,12 +248,7 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Overview */}
         {activeTab === "dashboard" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="space-y-8"
-          >
+          <div className="space-y-8 transition-all duration-500 opacity-100 translate-y-0">
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
@@ -401,17 +381,12 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Users Management Section */}
         {activeTab === "users" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
-          >
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-500 opacity-100 translate-y-0">
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
               <h2 className="text-2xl font-bold text-white flex items-center">
                 👥 User Management
@@ -496,17 +471,12 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Product Creation Section */}
         {activeTab === "create" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
-          >
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-500 opacity-100 translate-y-0">
             <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
               <h2 className="text-2xl font-bold text-white flex items-center">
                 ➕ Create New Product
@@ -582,17 +552,12 @@ export default function Dashboard() {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Products Management Section */}
         {activeTab === "products" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
-          >
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-500 opacity-100 translate-y-0">
             <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
               <h2 className="text-2xl font-bold text-white flex items-center">
                 📦 Product Inventory
@@ -739,17 +704,12 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Orders Management Section */}
         {activeTab === "orders" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
-          >
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-500 opacity-100 translate-y-0">
             <div className="bg-gradient-to-r from-orange-500 to-red-600 px-6 py-4">
               <h2 className="text-2xl font-bold text-white flex items-center">
                 🛒 Order Management
@@ -845,7 +805,7 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

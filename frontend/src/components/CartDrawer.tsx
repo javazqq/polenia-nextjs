@@ -6,6 +6,7 @@ import { removeFromCart } from "@/slices/cartSlice";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import React, { useState, useMemo, memo } from "react";
+import { MoveRight } from "lucide-react";
 
 interface Props {
   isOpen: boolean;
@@ -87,8 +88,7 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
 
   // Memoize subtotal calculation
   const subtotal = useMemo(
-    () =>
-      cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+    () => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
     [cartItems]
   );
 
@@ -109,7 +109,9 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
       {/* Backdrop */}
       <div
         className={`fixed inset-0 bg-black/10 z-40 transition-opacity duration-300 ${
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          isOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
       />
@@ -214,11 +216,13 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
 
                 <button
                   onClick={handleProceedToCheckout}
-                  className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   disabled={cartItems.length === 0}
                 >
                   Proceed to Checkout
-                  <span className="ml-2">→</span>
+                  <span className="ml-2 flex items-center">
+                    <MoveRight className="w-4 h-4 transition-transform duration-300" />
+                  </span>
                 </button>
               </div>
             </>

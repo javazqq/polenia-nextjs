@@ -100,10 +100,10 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: visible ? 0 : -100 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 glass-navbar ${
           scrolled
-            ? "bg-[#FFFBF4]/90 backdrop-blur-lg shadow-lg border-b border-[#DDC7FF]"
-            : "bg-[#FFFBF4]/80 backdrop-blur-sm"
+            ? "bg-white/40 backdrop-blur-2xl shadow-lg border-b border-[#DDC7FF]"
+            : "bg-white/20 backdrop-blur-2xl"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -376,6 +376,17 @@ export default function Navbar() {
       </AnimatePresence>
 
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+
+      {/* Add this to the bottom of the file for custom glass effect if not already in global CSS */}
+      <style jsx global>{`
+        .glass-navbar {
+          background: rgba(255, 255, 255, 0.18) !important;
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+          backdrop-filter: blur(18px) saturate(180%);
+          -webkit-backdrop-filter: blur(18px) saturate(180%);
+          border-bottom: 1px solid rgba(221, 199, 255, 0.25);
+        }
+      `}</style>
     </>
   );
 }
