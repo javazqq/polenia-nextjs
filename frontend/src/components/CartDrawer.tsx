@@ -5,8 +5,8 @@ import { RootState } from "@/store";
 import { removeFromCart } from "@/slices/cartSlice";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import React, { useState, useMemo, memo } from "react";
-import { MoveRight } from "lucide-react";
+import React, { useState, useMemo, memo, useEffect } from "react";
+import { ArrowRight } from "lucide-react";
 
 interface Props {
   isOpen: boolean;
@@ -104,6 +104,12 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
     }
   };
 
+  // Add hasMounted state
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   return (
     <>
       {/* Backdrop */}
@@ -118,7 +124,7 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
 
       {/* Drawer */}
       <aside
-        className={`fixed right-0 top-0 h-full w-full max-w-md bg-[#FFFBF4]/95 shadow-2xl z-50 ${
+        className={`fixed right-0 top-0 h-full w-full max-w-md glass-cart-drawer shadow-2xl z-50 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         } transform transition-transform duration-300 overflow-y-auto rounded-l-3xl border-l border-[#DDC7FF]`}
       >
@@ -128,9 +134,12 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
               <h2 className="text-2xl font-bold text-[#6153E0] mb-1">
                 Your Cart
               </h2>
-              <p className="text-sm text-[#6153E0]/70">
-                {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
-              </p>
+              {/* Only render cart count after mount to avoid hydration mismatch */}
+              {hasMounted && (
+                <p className="text-sm text-[#6153E0]/70">
+                  {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
+                </p>
+              )}
             </div>
             <button
               onClick={onClose}
@@ -154,79 +163,85 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
             </button>
           </div>
 
-          {cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-center">
-              <div className="w-20 h-20 bg-[#DDC7FF]/30 rounded-full flex items-center justify-center mb-4">
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16 5 16H17M17 13V16M9 19.5A1.5 1.5 0 1 1 10.5 21A1.5 1.5 0 0 1 9 19.5ZM20 19.5A1.5 1.5 0 1 1 21.5 21A1.5 1.5 0 0 1 20 19.5Z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-[#6153E0]/50"
-                  />
-                </svg>
+          {/* Only render cart content after mount to avoid hydration mismatch */}
+          {hasMounted &&
+            (cartItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-64 text-center">
+                <div className="w-20 h-20 bg-[#DDC7FF]/30 rounded-full flex items-center justify-center mb-4">
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16 5 16H17M17 13V16M9 19.5A1.5 1.5 0 1 1 10.5 21A1.5 1.5 0 0 1 9 19.5ZM20 19.5A1.5 1.5 0 1 1 21.5 21A1.5 1.5 0 0 1 20 19.5Z"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-[#6153E0]/50"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-[#6153E0] mb-2">
+                  Your cart is empty
+                </h3>
+                <p className="text-[#6153E0]/70 text-sm">
+                  Add some delicious ginger beer to get started!
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-[#6153E0] mb-2">
-                Your cart is empty
-              </h3>
-              <p className="text-[#6153E0]/70 text-sm">
-                Add some delicious ginger beer to get started!
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="space-y-4 mb-6">
-                {cartItems.map((item) => (
-                  <CartItem key={item.id} item={item} onRemove={handleRemove} />
-                ))}
-              </div>
+            ) : (
+              <React.Fragment>
+                <div className="space-y-4 mb-6">
+                  {cartItems.map((item) => (
+                    <CartItem
+                      key={item.id}
+                      item={item}
+                      onRemove={handleRemove}
+                    />
+                  ))}
+                </div>
 
-              {/* Summary */}
-              <div className="space-y-4">
-                <div className="bg-white/60 rounded-2xl p-4 border border-[#DDC7FF]/30">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-[#6153E0]/70">Subtotal</span>
-                    <span className="font-semibold text-[#6153E0]">
-                      ${subtotal.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-[#6153E0]/70">Shipping</span>
-                    <span className="font-semibold text-[#D6E012]">FREE</span>
-                  </div>
-                  <div className="border-t border-[#DDC7FF]/30 pt-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-[#6153E0]">
-                        Total
-                      </span>
-                      <span className="text-xl font-bold text-[#6153E0]">
+                {/* Summary */}
+                <div className="space-y-4">
+                  <div className="bg-white/60 rounded-2xl p-4 border border-[#DDC7FF]/30">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[#6153E0]/70">Subtotal</span>
+                      <span className="font-semibold text-[#6153E0]">
                         ${subtotal.toFixed(2)}
                       </span>
                     </div>
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-[#6153E0]/70">Shipping</span>
+                      <span className="font-semibold text-[#D6E012]">FREE</span>
+                    </div>
+                    <div className="border-t border-[#DDC7FF]/30 pt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-bold text-[#6153E0]">
+                          Total
+                        </span>
+                        <span className="text-xl font-bold text-[#6153E0]">
+                          ${subtotal.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <button
-                  onClick={handleProceedToCheckout}
-                  className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  disabled={cartItems.length === 0}
-                >
-                  Proceed to Checkout
-                  <span className="ml-2 flex items-center">
-                    <MoveRight className="w-4 h-4 transition-transform duration-300" />
-                  </span>
-                </button>
-              </div>
-            </>
-          )}
+                  <button
+                    onClick={handleProceedToCheckout}
+                    className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    disabled={cartItems.length === 0}
+                  >
+                    Proceed to Checkout
+                    <span className="ml-2 flex items-center">
+                      <ArrowRight className="transition-transform duration-300" />
+                    </span>
+                  </button>
+                </div>
+              </React.Fragment>
+            ))}
         </div>
       </aside>
 
@@ -280,6 +295,16 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
           </div>
         )}
       </div>
+
+      {/* Add this to the bottom of the file for custom glass effect if not already in global CSS */}
+      <style jsx global>{`
+        .glass-cart-drawer {
+          background: rgba(255, 251, 244, 0.75) !important;
+          backdrop-filter: blur(12px) saturate(140%);
+          -webkit-backdrop-filter: blur(12px) saturate(140%);
+          border-left: 1px solid rgba(221, 199, 255, 0.18);
+        }
+      `}</style>
     </>
   );
 }

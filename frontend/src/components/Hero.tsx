@@ -1,6 +1,6 @@
 import Image from "next/image";
 import poleniaLogo from "/public/images/polenia-logo.png";
-import { MoveRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -46,7 +46,7 @@ export default function Hero() {
               <button className="bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-10 py-4 rounded-2xl text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-[#FF6E98] group-hover:to-[#FF991F] flex items-center">
                 Order Now
                 <span className="ml-2 flex items-center group-hover:translate-x-1 transition-transform duration-300">
-                  <MoveRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  <ArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </button>
             </a>
