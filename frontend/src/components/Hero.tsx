@@ -1,8 +1,6 @@
-"use client";
-
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import poleniaLogo from '/public/images/polenia-logo.png';
+import Image from "next/image";
+import poleniaLogo from "/public/images/polenia-logo.png";
+import { MoveRight } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -15,29 +13,14 @@ export default function Hero() {
         </div>
 
         {/* Hero content */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative z-10 max-w-4xl mx-auto px-6"
-        >
+        <div className="relative z-10 max-w-4xl mx-auto px-6">
           {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="inline-flex items-center px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm rounded-full text-sm font-medium text-[#6153E0] mb-6 shadow-lg border border-[#DDC7FF]/50"
-          >
+          <div className="inline-flex items-center px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm rounded-full text-sm font-medium text-[#6153E0] mb-6 shadow-lg border border-[#DDC7FF]/50 opacity-0 animate-fade-in-down">
             ✨ Handcrafted with Love
-          </motion.div>
+          </div>
 
           {/* Main heading */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="flex justify-center"
-          >
+          <div className="flex justify-center opacity-0 animate-fade-in-down [animation-delay:150ms]">
             <Image
               src={poleniaLogo}
               alt="Polenia Ginger Beer Logo"
@@ -46,47 +29,36 @@ export default function Hero() {
               priority
               className="mx-auto"
             />
-          </motion.div>
+          </div>
 
           {/* Subtitle */}
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-xl md:text-2xl text-[#6153E0]/80 mb-8 max-w-2xl mx-auto leading-relaxed font-light"
-          >
+          <p className="text-xl md:text-2xl text-[#6153E0]/80 mb-8 max-w-2xl mx-auto leading-relaxed font-light opacity-0 animate-fade-in-down [animation-delay:300ms]">
             Experience the perfect blend of spicy ginger and refreshing zest.
             <br />
-            <span className="font-medium text-[#6153E0]">Crafted for the bold.</span>
-          </motion.p>
+            <span className="font-medium text-[#6153E0]">
+              Crafted for the bold.
+            </span>
+          </p>
 
           {/* CTA Buttons */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center opacity-0 animate-fade-in-down [animation-delay:500ms]">
             <a href="/products" className="group">
               <button className="bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-10 py-4 rounded-2xl text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-[#FF6E98] group-hover:to-[#FF991F]">
                 Order Now
-                <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300 inline-block">→</span>
+                <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300 inline-block">
+                  <MoveRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
               </button>
             </a>
-            <a href='/about' className="group">
+            <a href="/about" className="group">
               <button className="bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] px-10 py-4 rounded-2xl text-lg font-semibold hover:bg-[#FFFBF4] hover:shadow-xl transition-all duration-300 border border-[#DDC7FF]">
                 Learn More
               </button>
             </a>
-          </motion.div>
+          </div>
 
           {/* Features */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.6 }}
-            className="flex flex-wrap justify-center gap-8 mt-12 text-[#6153E0]/70"
-          >
+          <div className="flex flex-wrap justify-center gap-8 mt-12 text-[#6153E0]/70 opacity-0 animate-fade-in-down [animation-delay:700ms]">
             <div className="flex items-center gap-2 text-sm font-medium">
               <span className="w-2 h-2 bg-[#D6E012] rounded-full"></span>
               100% Natural
@@ -99,8 +71,8 @@ export default function Hero() {
               <span className="w-2 h-2 bg-[#FF991F] rounded-full"></span>
               Locally Sourced
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* Enhanced Waves SVG background */}
@@ -124,10 +96,30 @@ export default function Hero() {
             </linearGradient>
           </defs>
           <g className="parallax">
-            <use xlinkHref="#gentle-wave" x="48" y="0" fill="url(#waveGradient)" />
-            <use xlinkHref="#gentle-wave" x="48" y="3" fill="rgba(221, 199, 255, 0.6)" />
-            <use xlinkHref="#gentle-wave" x="48" y="5" fill="rgba(255, 110, 152, 0.5)" />
-            <use xlinkHref="#gentle-wave" x="48" y="7" fill="rgba(97, 83, 224, 0.9)" />
+            <use
+              xlinkHref="#gentle-wave"
+              x="48"
+              y="0"
+              fill="url(#waveGradient)"
+            />
+            <use
+              xlinkHref="#gentle-wave"
+              x="48"
+              y="3"
+              fill="rgba(221, 199, 255, 0.6)"
+            />
+            <use
+              xlinkHref="#gentle-wave"
+              x="48"
+              y="5"
+              fill="rgba(255, 110, 152, 0.5)"
+            />
+            <use
+              xlinkHref="#gentle-wave"
+              x="48"
+              y="7"
+              fill="rgba(97, 83, 224, 0.9)"
+            />
           </g>
         </svg>
       </div>

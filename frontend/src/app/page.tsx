@@ -17,7 +17,7 @@ export default function Home() {
       <section className="snap-start min-h-screen">
         <Hero />
       </section>
-      <section className="snap-start min-h-screen">
+      {/* <section className="snap-start min-h-screen">
         <FeaturedProducts />
       </section>
       <section className="snap-start min-h-screen">
@@ -25,7 +25,7 @@ export default function Home() {
       </section>
       <section className="snap-start min-h-screen">
         <CTA />
-      </section>
+      </section> */}
     </div>
   );
 }
