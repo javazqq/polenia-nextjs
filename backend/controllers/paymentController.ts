@@ -1,4 +1,4 @@
-import { MercadoPagoConfig, Preference } from "mercadopago";
+import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
 import { Request, Response } from "express";
 
 // Configuración del cliente

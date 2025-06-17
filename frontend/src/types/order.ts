@@ -8,6 +8,14 @@ export interface OrderItem {
   description?: string;
 }
 
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
 export interface Order {
   id: string; // uuid
   user_id?: number | null;
@@ -16,10 +24,7 @@ export interface Order {
   created_at: string; // ISO timestamp
   guest_name?: string | null;
   guest_email?: string | null;
-  payment_method?: string | null;
-  mp_payment_id?: string | null;
-  mp_preference_id?: string | null;
+  guest_address?: Address | string | null;
   updated_at?: string | null; // ISO timestamp, may be undefined if not fetched
-  guest_address?: string | null;
   items: OrderItem[];
 }

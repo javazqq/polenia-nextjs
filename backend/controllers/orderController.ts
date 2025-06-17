@@ -2,6 +2,14 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import pool from "../config/db";
 
+
+interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
 interface AuthenticatedRequest extends Request {
   user: {
     id: number;
@@ -15,7 +23,7 @@ export const createOrder = async (
   res: Response
 ): Promise<void> => {
   const user = (req as AuthenticatedRequest).user;
-  const { items, total, guest_name, guest_email } = req.body;
+  const { items, total, guest_name, guest_email, guest_address } = req.body;
 
   if (!items || items.length === 0) {
     res.status(400).json({ message: "Order must contain at least one item" });
@@ -27,13 +35,14 @@ export const createOrder = async (
     await pool.query("BEGIN");
 
     await pool.query(
-      `INSERT INTO orders (id, user_id, guest_name, guest_email, total, status)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
+      `INSERT INTO orders (id, user_id, guest_name, guest_email, guest_address, total, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
         orderId,
         user ? user.id : null,
         user ? null : guest_name,
         user ? null : guest_email,
+        user ? null : JSON.stringify(guest_address), // Store as JSON
         total,
         "pending",
       ]

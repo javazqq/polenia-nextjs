@@ -5,9 +5,9 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { fetchOrderById } from "@/lib/api/orders";
-import { Order } from "@/types/order";
+import { Order, Address } from "@/types/order";
 import { motion } from "framer-motion";
-import { CheckCircle, Mail, Package, ArrowRight } from "lucide-react";
+import { CheckCircle, Mail, Package, ArrowRight, MapPin } from "lucide-react";
 import Link from "next/link";
 
 export default function OrderPage() {
@@ -22,6 +22,34 @@ export default function OrderPage() {
 
   // Get user info from Redux
   const { userInfo } = useSelector((state: RootState) => state.auth);
+
+  // Helper function to render address
+  const renderAddress = (address: Address | string | null | undefined) => {
+    if (!address) return null;
+
+    if (typeof address === "string") {
+      // Legacy string address
+      return (
+        <div className="text-right font-semibold text-gray-900 max-w-xs">
+          <span>{address}</span>
+        </div>
+      );
+    }
+
+    // Structured address object
+    return (
+      <div className="text-right font-semibold text-gray-900 max-w-xs">
+        <div className="text-sm space-y-1">
+          <div>{address.street}</div>
+          <div>
+            {address.city}, {address.state}
+          </div>
+          <div>{address.zipCode}</div>
+          <div className="font-medium text-[#6153E0]">{address.country}</div>
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const guestToken = searchParams?.get("guestToken");
@@ -148,7 +176,7 @@ export default function OrderPage() {
 
             {/* Order Information Grid */}
             <motion.div
-              className="grid md:grid-cols-2 gap-8"
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.6 }}
@@ -207,10 +235,25 @@ export default function OrderPage() {
                 </div>
               </div>
 
+              {/* Shipping Address */}
+              {order.guest_address && (
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <MapPin className="w-6 h-6 text-[#6153E0]" />
+                    Shipping Address
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-xl p-4 border border-gray-200">
+                      {renderAddress(order.guest_address)}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Order Items */}
               <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <Mail className="w-6 h-6 text-[#6153E0]" />
+                  <Package className="w-6 h-6 text-[#6153E0]" />
                   Items
                 </h2>
                 <div className="space-y-3">

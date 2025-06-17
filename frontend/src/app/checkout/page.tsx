@@ -21,7 +21,13 @@ export default function CheckoutPage() {
   // Form state for guest checkout
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState({
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "Mexico" // Default country
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,9 +38,9 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
   setError("");
-  if (isGuest && (!name || !email || !address)) {
-    setError("Please fill all guest information fields.");
-    return;
+  if (isGuest && (!name || !email || !address.street || !address.city || !address.state || !address.zipCode)) {
+      setError("Please fill all required address fields.");
+      return;
   }
   if (cartItems.length === 0) {
     setError("Your cart is empty.");
@@ -261,18 +267,55 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-[#6153E0] mb-2">
-                          Shipping Address
-                        </label>
-                        <textarea
-                          placeholder="Enter your complete shipping address"
-                          value={address}
-                          onChange={(e) => setAddress(e.target.value)}
-                          className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 resize-none transition-all"
-                          rows={4}
-                          required
-                        />
-                      </div>
+            <label className="block text-sm font-semibold text-[#6153E0] mb-4">
+              Shipping Address
+            </label>
+            
+            {/* Street Address */}
+            <div className="mb-3">
+              <input
+                type="text"
+                placeholder="Street address"
+                value={address.street}
+                onChange={(e) => setAddress(prev => ({ ...prev, street: e.target.value }))}
+                className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                required
+              />
+            </div>
+            
+            {/* City and State Row */}
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <input
+                type="text"
+                placeholder="City"
+                value={address.city}
+                onChange={(e) => setAddress(prev => ({ ...prev, city: e.target.value }))}
+                className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                required
+              />
+              <input
+                type="text"
+                placeholder="State/Province"
+                value={address.state}
+                onChange={(e) => setAddress(prev => ({ ...prev, state: e.target.value }))}
+                className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                required
+              />
+            </div>
+            
+            {/* ZIP and Country Row */}
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="text"
+                placeholder="ZIP/Postal Code"
+                value={address.zipCode}
+                onChange={(e) => setAddress(prev => ({ ...prev, zipCode: e.target.value }))}
+                className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                required
+              />
+
+            </div>
+          </div>
                     </div>
                   </>
                 ) : (
