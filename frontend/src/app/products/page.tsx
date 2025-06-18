@@ -14,14 +14,22 @@ const ProductCard = memo(function ProductCard({
   product: Product;
   index: number;
 }) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   return (
-    <div className="group h-full bg-[#FFFBF4]/90 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-[#DDC7FF]/30 group-hover:border-[#FF6E98]/50 h-full flex flex-col opacity-0 animate-fade-in-down [animation-delay:600ms]">
-      <Link
-        href={`/products/${product.id}`}
-        className="block flex-1 flex flex-col"
-      >
-        {/* Image Container */}
+    <div className="group h-full bg-[#FFFBF4]/90 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-[#DDC7FF]/30 group-hover:border-[#FF6E98]/50 flex flex-col opacity-0 animate-fade-in-down [animation-delay:600ms]">
+      <Link href={`/products/${product.id}`} className="flex flex-1 flex-col">
+        {/* Image Container - Reserved Space */}
         <div className="relative h-64 overflow-hidden bg-gradient-to-br from-[#DDC7FF]/30 to-[#FF6E98]/20">
+          {/* Loading Skeleton for individual image */}
+          {!imageLoaded && (
+            <div className="absolute inset-0 bg-gradient-to-br from-[#DDC7FF]/20 to-[#FF6E98]/10 animate-pulse">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-3 border-[#DDC7FF]/30 border-t-[#6153E0] rounded-full animate-spin opacity-50"></div>
+              </div>
+            </div>
+          )}
+
           {/* Badge */}
           {index < 3 && (
             <div className="absolute top-4 left-4 z-10">
@@ -43,11 +51,15 @@ const ProductCard = memo(function ProductCard({
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-700"
-            loading="lazy"
-            sizes="(max-width: 768px) 100vw, 25vw"
+            className={`object-cover group-hover:scale-110 transition-all duration-700 ${
+              imageLoaded ? "opacity-100" : "opacity-0"
+            }`}
+            loading={index < 4 ? "eager" : "lazy"} // Load first 4 images eagerly
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             placeholder="blur"
-            blurDataURL="/images/placeholder-image.jpg"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageLoaded(true)} // Also set loaded on error to hide skeleton
           />
 
           {/* Enhanced overlay with quick add button */}
@@ -172,8 +184,8 @@ export default function ProductsPage() {
           <span className="inline-block px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] rounded-full text-sm font-semibold mb-6 border border-[#DDC7FF]/50 opacity-0 animate-fade-in-down [animation-delay:100ms]">
             ✨ Premium Collection
           </span>
-          <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] via-[#FF6E98] to-[#6153E0] mb-6 opacity-0 animate-fade-in-down [animation-delay:200ms]">
-            Our Products
+          <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] via-[#FF6E98] to-[#6153E0] mb-6 opacity-0 animate-fade-in-down [animation-delay:200ms] leading-tight pb-2">
+            Ginger Beer
           </h1>
           <p className="text-lg md:text-xl text-[#6153E0]/80 max-w-2xl mx-auto leading-relaxed opacity-0 animate-fade-in-down [animation-delay:300ms]">
             Discover our complete range of handcrafted ginger beers, each bottle

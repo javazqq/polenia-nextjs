@@ -49,6 +49,7 @@ export default function ProductPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const params = useParams();
   const id = params?.id as string;
@@ -139,16 +140,32 @@ export default function ProductPage() {
               {/* Image Section */}
               <div className="space-y-6">
                 <div className="relative h-[500px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#DDC7FF]/30 to-[#FF6E98]/20 shadow-2xl border border-white/50">
+                  {/* Skeleton - only show if image not loaded */}
+                  {!imageLoaded && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#DDC7FF]/20 to-[#FF6E98]/10 animate-pulse">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-16 h-16 border-4 border-[#DDC7FF]/30 border-t-[#6153E0] rounded-full animate-spin opacity-50"></div>
+                      </div>
+                    </div>
+                  )}
+
                   <Image
                     src={product.image}
                     alt={product.name}
                     fill
-                    className="object-cover transition-transform duration-700 hover:scale-105"
+                    className={`object-cover transition-all duration-700 hover:scale-105 ${
+                      imageLoaded ? "opacity-100" : "opacity-0"
+                    }`}
                     priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    onLoad={() => setImageLoaded(true)}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#6153E0]/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500" />
+
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#6153E0]/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 z-20" />
+
                   {/* Floating elements */}
-                  <div className="absolute top-6 right-6">
+                  <div className="absolute top-6 right-6 z-30">
                     <button className="bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-lg hover:bg-white transition-colors">
                       <Heart
                         size={20}

@@ -79,11 +79,11 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { href: "/", label: "Home", icon: Home },
+    // { href: "/", label: "Home", icon: Home },
     { href: "/about", label: "About", icon: Info },
     { href: "#footer", label: "Contact", icon: Mail, scroll: true },
     { href: "/faq", label: "FAQ", icon: MessageCircleQuestion },
-    { href: "/products", label: "Products", icon: Package },
+    { href: "/products", label: "Ginger Beer", icon: Package },
     {
       href: "/cart",
       label: "Cart",
@@ -100,7 +100,7 @@ export default function Navbar() {
           scrolled
             ? "bg-white/70 backdrop-blur-sm shadow-lg border-b border-[#DDC7FF]/30"
             : "bg-white/50 backdrop-blur-sm"
-        } ${visible ? 'translate-y-0' : '-translate-y-full'}`}
+        } ${visible ? "translate-y-0" : "-translate-y-full"}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -133,16 +133,15 @@ export default function Navbar() {
                   {label === "Cart" ? (
                     <button
                       onClick={() => setCartOpen(true)}
-                      className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 relative hover:scale-105 active:scale-95 ${
+                      className={`p-3 rounded-xl font-medium transition-all duration-200 flex items-center relative hover:scale-105 active:scale-95 ${
                         scrolled
                           ? "text-[#6153E0] hover:bg-[#DDC7FF]/30 hover:text-[#6153E0]"
                           : "text-[#6153E0] hover:bg-[#FFFBF4] hover:text-[#6153E0]"
                       }`}
                     >
-                      <ShoppingCart size={18} />
-                      <span>{label}</span>
+                      <ShoppingCart size={20} />
                       {isClient && showCount && totalItems > 0 && (
-                        <span className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-r from-[#FF6E98] to-[#FF991F] text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-[#FF6E98] to-[#FF991F] text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                           {totalItems}
                         </span>
                       )}
@@ -228,7 +227,9 @@ export default function Navbar() {
       {/* Mobile Menu */}
       <div
         className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ${
-          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          menuOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
       >
         {/* Backdrop */}
@@ -240,7 +241,7 @@ export default function Navbar() {
         {/* Menu Panel */}
         <aside
           className={`absolute left-0 top-16 w-80 h-[calc(100vh-4rem)] bg-[#FFFBF4]/85 backdrop-blur-sm shadow-2xl rounded-r-3xl border-r border-[#DDC7FF] overflow-y-auto transition-transform duration-300 ease-out ${
-            menuOpen ? 'translate-x-0' : '-translate-x-full'
+            menuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <div className="p-6">
@@ -250,10 +251,14 @@ export default function Navbar() {
                   <div
                     key={label}
                     className={`w-full transition-all duration-200 ${
-                      menuOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-5'
+                      menuOpen
+                        ? "opacity-100 translate-x-0"
+                        : "opacity-0 -translate-x-5"
                     }`}
-                    style={{ 
-                      transitionDelay: menuOpen ? `${(index + 1) * 50}ms` : '0ms' 
+                    style={{
+                      transitionDelay: menuOpen
+                        ? `${(index + 1) * 50}ms`
+                        : "0ms",
                     }}
                   >
                     {label === "Cart" ? (
@@ -296,10 +301,14 @@ export default function Navbar() {
               {/* Mobile Auth */}
               <div
                 className={`pt-4 border-t border-[#DDC7FF] transition-all duration-200 ${
-                  menuOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-5'
+                  menuOpen
+                    ? "opacity-100 translate-x-0"
+                    : "opacity-0 -translate-x-5"
                 }`}
-                style={{ 
-                  transitionDelay: menuOpen ? `${(navLinks.length + 1) * 50}ms` : '0ms' 
+                style={{
+                  transitionDelay: menuOpen
+                    ? `${(navLinks.length + 1) * 50}ms`
+                    : "0ms",
                 }}
               >
                 {userInfo ? (
