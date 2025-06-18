@@ -1,7 +1,6 @@
 // src/app/about/page.tsx
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Flame,
   Heart,
@@ -12,29 +11,6 @@ import {
   Award,
 } from "lucide-react";
 import Link from "next/link";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  },
-};
 
 export default function About() {
   return (
@@ -49,46 +25,28 @@ export default function About() {
       </div>
 
       <div className="relative z-10 px-6 md:px-16 py-20">
-        <motion.div
-          className="max-w-5xl mx-auto"
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-        >
+        <div className="max-w-5xl mx-auto animate-fade-in-down">
           {/* Header Section */}
           <div className="text-center mb-20">
-            <motion.span
-              className="inline-block px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] rounded-full text-sm font-semibold border border-[#DDC7FF]/50 mb-6"
-              variants={itemVariants}
-            >
+            <span className="inline-block px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] rounded-full text-sm font-semibold border border-[#DDC7FF]/50 mb-6 animate-fade-in-down delay-100">
               ✨ Our Story
-            </motion.span>
+            </span>
 
-            <motion.h1
-              className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] via-[#FF6E98] to-[#6153E0] leading-tight mb-6"
-              variants={itemVariants}
-            >
+            <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] via-[#FF6E98] to-[#6153E0] leading-tight mb-6 animate-fade-in-down delay-200">
               Meet Polenia
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              className="text-xl md:text-2xl text-[#6153E0]/80 leading-relaxed max-w-4xl mx-auto"
-              variants={itemVariants}
-            >
+            <p className="text-xl md:text-2xl text-[#6153E0]/80 leading-relaxed max-w-4xl mx-auto animate-fade-in-down delay-300">
               Polenia isn't just a ginger beer — it's a spark in a bottle.
               Brewed in small batches, born from a craving for boldness, and
               infused with nature's fire — real ginger.
-            </motion.p>
+            </p>
           </div>
 
           {/* Story Cards Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
             {/* Story Card */}
-            <motion.div
-              className="bg-[#FFFBF4]/80 backdrop-blur-sm rounded-3xl p-8 border border-[#DDC7FF]/30 hover:border-[#FF6E98]/50 transition-all duration-300 group"
-              variants={itemVariants}
-              whileHover={{ y: -5, scale: 1.02 }}
-            >
+            <div className="bg-[#FFFBF4]/80 backdrop-blur-sm rounded-3xl p-8 border border-[#DDC7FF]/30 hover:border-[#FF6E98]/50 transition-all duration-300 group animate-fade-in-down delay-400 hover:-translate-y-1 hover:scale-[1.02]">
               <div className="w-12 h-12 bg-gradient-to-br from-[#FF6E98] to-[#FF991F] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Flame size={24} className="text-white" />
               </div>
@@ -101,14 +59,10 @@ export default function About() {
                 experiments turned into Polenia — a name inspired by old-world
                 charm and new-world flavor.
               </p>
-            </motion.div>
+            </div>
 
             {/* Values Card */}
-            <motion.div
-              className="bg-[#FFFBF4]/80 backdrop-blur-sm rounded-3xl p-8 border border-[#DDC7FF]/30 hover:border-[#FF6E98]/50 transition-all duration-300 group"
-              variants={itemVariants}
-              whileHover={{ y: -5, scale: 1.02 }}
-            >
+            <div className="bg-[#FFFBF4]/80 backdrop-blur-sm rounded-3xl p-8 border border-[#DDC7FF]/30 hover:border-[#FF6E98]/50 transition-all duration-300 group animate-fade-in-down delay-500 hover:-translate-y-1 hover:scale-[1.02]">
               <div className="w-12 h-12 bg-gradient-to-br from-[#D6E012] to-[#6153E0] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Leaf size={24} className="text-white" />
               </div>
@@ -120,14 +74,10 @@ export default function About() {
                 be fiery, full-bodied, and fearless — with only raw ginger, cane
                 sugar, citrus, and a whole lot of heart.
               </p>
-            </motion.div>
+            </div>
 
             {/* Mission Card */}
-            <motion.div
-              className="bg-[#FFFBF4]/80 backdrop-blur-sm rounded-3xl p-8 border border-[#DDC7FF]/30 hover:border-[#FF6E98]/50 transition-all duration-300 group md:col-span-2 lg:col-span-1"
-              variants={itemVariants}
-              whileHover={{ y: -5, scale: 1.02 }}
-            >
+            <div className="bg-[#FFFBF4]/80 backdrop-blur-sm rounded-3xl p-8 border border-[#DDC7FF]/30 hover:border-[#FF6E98]/50 transition-all duration-300 group md:col-span-2 lg:col-span-1 animate-fade-in-down delay-600 hover:-translate-y-1 hover:scale-[1.02]">
               <div className="w-12 h-12 bg-gradient-to-br from-[#FF6E98] to-[#6153E0] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Heart size={24} className="text-white" />
               </div>
@@ -139,14 +89,11 @@ export default function About() {
                 time. We're here for the flavor-seekers, the craft lovers, and
                 anyone tired of bland. This is ginger beer that bites back.
               </p>
-            </motion.div>
+            </div>
           </div>
 
           {/* Stats Section */}
-          <motion.div
-            className="bg-white/60 backdrop-blur-sm rounded-3xl p-12 border border-[#DDC7FF]/30 mb-20"
-            variants={itemVariants}
-          >
+          <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-12 border border-[#DDC7FF]/30 mb-20 animate-fade-in-down delay-700">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div>
                 <div className="text-4xl font-bold text-[#6153E0] mb-2">
@@ -177,14 +124,11 @@ export default function About() {
                 <div className="text-[#6153E0]/70 font-medium">Founded</div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Values Grid */}
-          <motion.div
-            className="grid md:grid-cols-3 gap-6 mb-20"
-            variants={containerVariants}
-          >
-            <motion.div className="text-center p-6" variants={itemVariants}>
+          <div className="grid md:grid-cols-3 gap-6 mb-20 animate-fade-in-down delay-800">
+            <div className="text-center p-6 animate-fade-in-down delay-900">
               <div className="w-16 h-16 bg-gradient-to-br from-[#D6E012]/20 to-[#D6E012]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#D6E012]/30">
                 <Sparkles size={28} className="text-[#6153E0]" />
               </div>
@@ -195,9 +139,9 @@ export default function About() {
                 Every bottle is crafted with care using only the finest
                 ingredients
               </p>
-            </motion.div>
+            </div>
 
-            <motion.div className="text-center p-6" variants={itemVariants}>
+            <div className="text-center p-6 animate-fade-in-down delay-[1000ms]">
               <div className="w-16 h-16 bg-gradient-to-br from-[#DDC7FF]/30 to-[#DDC7FF]/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#DDC7FF]/50">
                 <Users size={28} className="text-[#6153E0]" />
               </div>
@@ -207,9 +151,9 @@ export default function About() {
               <p className="text-[#6153E0]/70">
                 Building connections through shared love of exceptional flavor
               </p>
-            </motion.div>
+            </div>
 
-            <motion.div className="text-center p-6" variants={itemVariants}>
+            <div className="text-center p-6 animate-fade-in-down delay-[1100ms]">
               <div className="w-16 h-16 bg-gradient-to-br from-[#FF6E98]/20 to-[#FF6E98]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#FF6E98]/30">
                 <Award size={28} className="text-[#6153E0]" />
               </div>
@@ -219,11 +163,11 @@ export default function About() {
               <p className="text-[#6153E0]/70">
                 Recognized for excellence in craft beverage innovation
               </p>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* CTA Section */}
-          <motion.div className="text-center" variants={itemVariants}>
+          <div className="text-center animate-fade-in-down delay-[1200ms]">
             <h2 className="text-3xl md:text-4xl font-bold text-[#6153E0] mb-6">
               Ready to experience the difference?
             </h2>
@@ -232,7 +176,7 @@ export default function About() {
               ginger beer should taste like.
             </p>
 
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <div className="inline-block transition-transform duration-300 hover:scale-105 active:scale-95">
               <Link
                 href="/products"
                 className="inline-flex items-center gap-3 bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white font-bold px-8 py-4 rounded-2xl hover:from-[#FF6E98] hover:to-[#FF991F] transition-all duration-300 shadow-lg hover:shadow-xl"
@@ -240,9 +184,9 @@ export default function About() {
                 <span>Explore Our Brews</span>
                 <ArrowRight size={20} />
               </Link>
-            </motion.div>
-          </motion.div>
-        </motion.div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );

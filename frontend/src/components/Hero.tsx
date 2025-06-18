@@ -75,6 +75,7 @@ export default function Hero() {
         </div>
       </section>
 
+
       {/* Enhanced Waves SVG background */}
       <div className="absolute bottom-0 left-0 w-full h-[20vh] min-h-[120px] max-h-[200px]">
         <svg

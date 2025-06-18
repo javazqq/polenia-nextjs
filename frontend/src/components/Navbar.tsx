@@ -28,6 +28,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const lastScrollY = useRef(0);
 
   const dispatch = useDispatch();
@@ -36,6 +37,9 @@ export default function Navbar() {
 
   useEffect(() => {
     setIsClient(true);
+    // Trigger slide-down animation after mount
+    const timer = setTimeout(() => setHasLoaded(true), 50);
+    return () => clearTimeout(timer);
   }, []);
 
   // Handle scroll effect and auto-hide
@@ -96,11 +100,11 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 w-full z-50 transition-transform duration-500 ${
           scrolled
             ? "bg-white/70 backdrop-blur-sm shadow-lg border-b border-[#DDC7FF]/30"
-            : "bg-white/50 backdrop-blur-sm"
-        } ${visible ? "translate-y-0" : "-translate-y-full"}`}
+            : "bg-white/50 backdrop-blur-sm shadow-md border-b border-[#DDC7FF]/10"
+        } ${visible && hasLoaded ? "translate-y-0" : "-translate-y-full"}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
