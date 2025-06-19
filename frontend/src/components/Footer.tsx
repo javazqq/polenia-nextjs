@@ -30,18 +30,24 @@ export default function Footer() {
           <div className="flex space-x-4">
             <Link
               href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-[#FFFBF4] hover:bg-white/20 hover:text-white transition-all"
             >
               <Facebook size={18} />
             </Link>
             <Link
               href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-[#FFFBF4] hover:bg-white/20 hover:text-white transition-all"
             >
               <Twitter size={18} />
             </Link>
             <Link
               href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-[#FFFBF4] hover:bg-white/20 hover:text-white transition-all"
             >
               <Instagram size={18} />
