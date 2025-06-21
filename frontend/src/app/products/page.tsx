@@ -181,9 +181,9 @@ export default function ProductsPage() {
       <div className="relative z-10 px-6 md:px-16 py-20">
         {/* Header Section */}
         <div className="text-center mb-16 max-w-4xl mx-auto opacity-0 animate-fade-in-down">
-          <span className="inline-block px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] rounded-full text-sm font-semibold mb-6 border border-[#DDC7FF]/50 opacity-0 animate-fade-in-down [animation-delay:100ms]">
+          {/* <span className="inline-block px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] rounded-full text-sm font-semibold mb-6 border border-[#DDC7FF]/50 opacity-0 animate-fade-in-down [animation-delay:100ms]">
             ✨ Premium Collection
-          </span>
+          </span> */}
           <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] via-[#FF6E98] to-[#6153E0] mb-6 opacity-0 animate-fade-in-down [animation-delay:200ms] leading-tight pb-2">
             Ginger Beer
           </h1>
@@ -193,7 +193,7 @@ export default function ProductsPage() {
           </p>
         </div>
 
-        {/* Category Pills */}
+        {/* Category Pills
         <div className="flex gap-4 justify-center mb-12 overflow-x-auto pb-2 opacity-0 animate-fade-in-down [animation-delay:400ms]">
           {categories.map((category) => (
             <button
@@ -208,7 +208,7 @@ export default function ProductsPage() {
               {category}
             </button>
           ))}
-        </div>
+        </div> */}
 
         {/* Loading State */}
         {isLoading && (

@@ -27,4 +27,5 @@ export interface Order {
   guest_address?: Address | string | null;
   updated_at?: string | null; // ISO timestamp, may be undefined if not fetched
   items: OrderItem[];
+  shipping_price: number;
 }

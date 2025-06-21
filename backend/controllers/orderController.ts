@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import pool from "../config/db";
 
-
 interface Address {
   street: string;
   city: string;
@@ -23,7 +22,14 @@ export const createOrder = async (
   res: Response
 ): Promise<void> => {
   const user = (req as AuthenticatedRequest).user;
-  const { items, total, guest_name, guest_email, guest_address } = req.body;
+  const {
+    items,
+    total,
+    guest_name,
+    guest_email,
+    guest_address,
+    shipping_price,
+  } = req.body;
 
   if (!items || items.length === 0) {
     res.status(400).json({ message: "Order must contain at least one item" });
@@ -35,8 +41,8 @@ export const createOrder = async (
     await pool.query("BEGIN");
 
     await pool.query(
-      `INSERT INTO orders (id, user_id, guest_name, guest_email, guest_address, total, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      `INSERT INTO orders (id, user_id, guest_name, guest_email, guest_address, total, shipping_price, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
         orderId,
         user ? user.id : null,
@@ -44,6 +50,7 @@ export const createOrder = async (
         user ? null : guest_email,
         user ? null : JSON.stringify(guest_address), // Store as JSON
         total,
+        shipping_price,
         "pending",
       ]
     );
@@ -63,7 +70,6 @@ export const createOrder = async (
          VALUES ($1, $2, $3, $4)`,
         [orderId, productIdInt, item.quantity, item.price]
       );
-
     }
 
     await pool.query("COMMIT");
@@ -165,7 +171,7 @@ export const getOrderById = async (
   try {
     // First, get the order
     const order = await pool.query(`SELECT * FROM orders WHERE id = $1`, [id]);
-    
+
     if (order.rows.length === 0) {
       res.status(404).json({ message: "Order not found" });
       return;
@@ -178,7 +184,7 @@ export const getOrderById = async (
     // 1. User is admin
     // 2. User owns the order (user_id matches)
     // 3. It's a guest order and no user_id (you might want to add additional checks here)
-    const isAdmin = user.role === 'admin';
+    const isAdmin = user.role === "admin";
     const isOwner = orderData.user_id === user.id;
     const isGuestOrder = !orderData.user_id; // Guest order has no user_id
 

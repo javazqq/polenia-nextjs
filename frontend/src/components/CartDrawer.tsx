@@ -122,11 +122,11 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
         onClick={onClose}
       />
 
-      {/* Drawer */}
+      {/* Floating Cart Drawer */}
       <aside
-        className={`fixed right-0 top-0 h-full w-full max-w-md glass-cart-drawer shadow-2xl z-50 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        } transform transition-transform duration-300 overflow-y-auto rounded-l-3xl border-l border-[#DDC7FF]`}
+        className={`fixed right-4 top-20 h-[calc(100vh-6rem)] w-[90vw] max-w-md glass-cart-drawer shadow-2xl z-50 ${
+          isOpen ? "translate-x-0 opacity-100" : "translate-x-[105%] opacity-0"
+        } transform transition-all duration-300 overflow-y-auto rounded-3xl border border-[#DDC7FF]`}
       >
         <div className="p-6">
           <div className="flex justify-between items-center mb-8">
@@ -215,7 +215,7 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
                     </div>
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-[#6153E0]/70">Shipping</span>
-                      <span className="font-semibold text-[#D6E012]">FREE</span>
+                      {/* <span className="font-semibold text-[#D6E012]">FREE</span> */}
                     </div>
                     <div className="border-t border-[#DDC7FF]/30 pt-3">
                       <div className="flex justify-between items-center">
@@ -234,7 +234,7 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
                     className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     disabled={cartItems.length === 0}
                   >
-                    Proceed to Checkout
+                    Proceed to Shipping
                     <span className="ml-2 flex items-center">
                       <ArrowRight className="transition-transform duration-300" />
                     </span>
@@ -245,7 +245,7 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
         </div>
       </aside>
 
-      {/* Checkout Options Modal */}
+      {/* Checkout Options Modal (Floating) */}
       <div
         className={`fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center px-4 transition-opacity duration-300 ${
           showCheckoutOptions
@@ -255,7 +255,8 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
       >
         {showCheckoutOptions && (
           <div
-            className={`bg-[#FFFBF4]/95 backdrop-blur-lg rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-[#DDC7FF] transition-transform duration-200 scale-100 opacity-100`}
+            className={`bg-[#FFFBF4]/90 backdrop-blur-lg rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-[#DDC7FF]/40 transition-all duration-300 scale-100 opacity-100 hover:shadow-xl`}
+            style={{ boxShadow: "0 8px 32px 0 rgba(97, 83, 224, 0.15)" }}
           >
             <h2 className="text-2xl font-bold text-center mb-3 text-[#6153E0]">
               Checkout Options
@@ -300,9 +301,10 @@ export default function CartDrawer({ isOpen, onClose }: Props) {
       <style jsx global>{`
         .glass-cart-drawer {
           background: rgba(255, 251, 244, 0.75) !important;
-          backdrop-filter: blur(12px) saturate(140%);
-          -webkit-backdrop-filter: blur(12px) saturate(140%);
-          border-left: 1px solid rgba(221, 199, 255, 0.18);
+          backdrop-filter: blur(20px) saturate(160%);
+          -webkit-backdrop-filter: blur(20px) saturate(160%);
+          border: 1px solid rgba(221, 199, 255, 0.25);
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
       `}</style>
     </>

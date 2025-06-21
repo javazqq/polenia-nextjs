@@ -35,6 +35,8 @@ export default function Navbar() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const [logoutApi, { isLoading: isLogoutLoading }] = useLogoutMutation();
 
+  
+
   useEffect(() => {
     setIsClient(true);
     // Trigger slide-down animation after mount
@@ -105,18 +107,29 @@ export default function Navbar() {
     },
   ];
 
+  const prevTotalItems = useRef(totalItems);
+
+useEffect(() => {
+  if (totalItems > prevTotalItems.current && !visible) {
+    setVisible(true);
+  }
+  prevTotalItems.current = totalItems;
+}, [totalItems, visible]);
+
   return (
     <>
       {/* This div provides spacing at the top since our navbar is now floating */}
       {/* <div className="h-20"></div> */}
 
       <nav
-        className={`fixed left-1/2 transform -translate-x-1/2 top-4 md:top-8 w-[94vw] md:w-[90vw] max-w-full md:max-w-3xl z-50 rounded-xl md:rounded-2xl shadow-xl bg-white/70 backdrop-blur-xl border border-[#DDC7FF]/40 transition-all duration-500 ${
+        className={`fixed left-1/2 transform -translate-x-1/2 top-4 md:top-8 w-[94vw] md:w-[90vw] max-w-full md:max-w-3xl z-50 rounded-xl md:rounded-2xl shadow-xl bg-white/40 md:bg-white/30 backdrop-blur-2xl border border-[#DDC7FF]/30 transition-all duration-500 ${
           scrolled ? "scale-100 opacity-100" : "scale-95 opacity-95"
-        } ${visible && hasLoaded ? "translate-y-0" : "-translate-y-20"}`}
+        } ${visible && hasLoaded ? "translate-y-0 opacity-100" : "-translate-y-[200%] opacity-0 pointer-events-none"}`}
         style={{
-          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
-          backdropFilter: "blur(24px)",
+          boxShadow:
+            "0 8px 32px 0 rgba(97, 83, 224, 0.10), 0 2px 24px 0 rgba(31,38,135,0.07)",
+          backdropFilter: "blur(32px) saturate(180%)",
+          WebkitBackdropFilter: "blur(32px) saturate(180%)",
         }}
       >
         <div className="px-2 py-2 md:px-4 flex items-center justify-between">
@@ -314,47 +327,49 @@ export default function Navbar() {
               )}
 
               {/* Mobile Auth */}
-              <div
-                className={`pt-4 border-t border-[#DDC7FF] transition-all duration-200 ${
-                  menuOpen
-                    ? "opacity-100 translate-x-0"
-                    : "opacity-0 -translate-x-5"
-                }`}
-                style={{
-                  transitionDelay: menuOpen
-                    ? `${(navLinks.length + 1) * 50}ms`
-                    : "0ms",
-                }}
-              >
-                {userInfo ? (
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setMenuOpen(false);
-                    }}
-                    disabled={isLogoutLoading}
-                    className="w-full flex items-center space-x-4 p-4 rounded-2xl text-[#6153E0] hover:bg-[#DDC7FF]/30 transition-all duration-200 group disabled:opacity-50"
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#FF6E98] to-[#FF991F] rounded-xl flex items-center justify-center">
-                      <LogOut size={20} className="text-white" />
-                    </div>
-                    <span className="font-medium">
-                      {isLogoutLoading ? "Logging out..." : "Logout"}
-                    </span>
-                  </button>
-                ) : (
-                  <Link
-                    href="/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="w-full flex items-center space-x-4 p-4 rounded-2xl bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white hover:from-[#FF6E98] hover:to-[#FF991F] transition-all duration-200 shadow-lg"
-                  >
-                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                      <User size={20} />
-                    </div>
-                    <span className="font-medium">Login</span>
-                  </Link>
-                )}
-              </div>
+              {isClient && (
+                <div
+                  className={`pt-4 border-t border-[#DDC7FF] transition-all duration-200 ${
+                    menuOpen
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 -translate-x-5"
+                  }`}
+                  style={{
+                    transitionDelay: menuOpen
+                      ? `${(navLinks.length + 1) * 50}ms`
+                      : "0ms",
+                  }}
+                >
+                  {userInfo ? (
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setMenuOpen(false);
+                      }}
+                      disabled={isLogoutLoading}
+                      className="w-full flex items-center space-x-4 p-4 rounded-2xl text-[#6153E0] hover:bg-[#DDC7FF]/30 transition-all duration-200 group disabled:opacity-50"
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#FF6E98] to-[#FF991F] rounded-xl flex items-center justify-center">
+                        <LogOut size={20} className="text-white" />
+                      </div>
+                      <span className="font-medium">
+                        {isLogoutLoading ? "Logging out..." : "Logout"}
+                      </span>
+                    </button>
+                  ) : (
+                    <Link
+                      href="/login"
+                      onClick={() => setMenuOpen(false)}
+                      className="w-full flex items-center space-x-4 p-4 rounded-2xl bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white hover:from-[#FF6E98] hover:to-[#FF991F] transition-all duration-200 shadow-lg"
+                    >
+                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                        <User size={20} />
+                      </div>
+                      <span className="font-medium">Login</span>
+                    </Link>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </aside>

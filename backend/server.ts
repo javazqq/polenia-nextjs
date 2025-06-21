@@ -7,6 +7,7 @@ import productRoutes from './routes/productRoutes';
 import userRoutes from './routes/userRoutes';
 import orderRoutes from './routes/orderRoutes';
 import paymentRoutes from './routes/paymentRoutes';
+import shippingRoutes from './routes/shippingRoutes';
 
 dotenv.config();
 
@@ -56,6 +57,9 @@ app.use('/api/users', userRoutes);
 
 // Order routes
 app.use('/api/orders', orderRoutes)
+
+// Shipping routes
+app.use('/api/shipping', shippingRoutes);
 
 // Payment routes
 app.use('/api/payment', paymentRoutes);

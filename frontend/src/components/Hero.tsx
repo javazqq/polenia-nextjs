@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 export default function Hero() {
   return (
     <div className="h-screen relative overflow-hidden">
-      <section className="bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] text-center h-full flex flex-col justify-center items-center relative">
+      <section className="bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] text-center h-full flex flex-col justify-center items-center relative pt-24 md:pt-0">
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#FF6E98]/20 rounded-full blur-3xl"></div>
@@ -14,11 +14,6 @@ export default function Hero() {
 
         {/* Hero content */}
         <div className="relative z-10 max-w-4xl mx-auto px-6">
-          {/* Badge */}
-          {/* <div className="inline-flex items-center px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm rounded-full text-sm font-medium text-[#6153E0] mb-6 shadow-lg border border-[#DDC7FF]/50 opacity-0 animate-fade-in-down">
-            ✨ Handcrafted with Love
-          </div> */}
-
           {/* Main heading */}
           <div className="flex justify-center opacity-0 animate-fade-in-down [animation-delay:150ms]">
             <Image
@@ -27,12 +22,12 @@ export default function Hero() {
               width={700}
               height={220}
               priority
-              className="mx-auto"
+              className="mx-auto w-48 h-auto md:w-[700px] md:h-[220px]"
             />
           </div>
 
           {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-[#6153E0]/80 mb-8 max-w-2xl mx-auto leading-relaxed font-light opacity-0 animate-fade-in-down [animation-delay:300ms]">
+          <p className="text-base md:text-2xl text-[#6153E0]/80 mb-8 max-w-2xl mx-auto leading-relaxed font-light opacity-0 animate-fade-in-down [animation-delay:300ms]">
             Experience the perfect blend of spicy ginger and refreshing zest.
             <br />
             <span className="font-medium text-[#6153E0]">
@@ -42,16 +37,16 @@ export default function Hero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center opacity-0 animate-fade-in-down [animation-delay:500ms]">
-            <a href="/products" className="group">
-              <button className="bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-10 py-4 rounded-2xl text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-[#FF6E98] group-hover:to-[#FF991F] flex items-center">
+            <a href="/products" className="group w-full sm:w-auto">
+              <button className="w-full sm:w-auto bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-6 py-3 md:px-10 md:py-4 rounded-2xl text-base md:text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-[#FF6E98] group-hover:to-[#FF991F] flex items-center justify-center">
                 Order Now
                 <span className="ml-2 flex items-center group-hover:translate-x-1 transition-transform duration-300">
                   <ArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </button>
             </a>
-            <a href="/about" className="group">
-              <button className="bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] px-10 py-4 rounded-2xl text-lg font-semibold hover:bg-[#FFFBF4] hover:shadow-xl transition-all duration-300 border border-[#DDC7FF]">
+            <a href="/about" className="group w-full sm:w-auto">
+              <button className="w-full sm:w-auto bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] px-6 py-3 md:px-10 md:py-4 rounded-2xl text-base md:text-lg font-semibold hover:bg-[#FFFBF4] hover:shadow-xl transition-all duration-300 border border-[#DDC7FF]">
                 Learn More
               </button>
             </a>
@@ -74,7 +69,6 @@ export default function Hero() {
           </div>
         </div>
       </section>
-
 
       {/* Enhanced Waves SVG background */}
       <div className="absolute bottom-0 left-0 w-full h-[20vh] min-h-[120px] max-h-[200px]">

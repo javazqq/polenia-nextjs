@@ -9,7 +9,6 @@ import { setCredentials } from "@/slices/authSlice";
 import Image from "next/image";
 import { Check, Lock } from "lucide-react";
 
-
 export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,10 +25,14 @@ export default function CheckoutPage() {
     city: "",
     state: "",
     zipCode: "",
-    country: "Mexico" // Default country
+    country: "Mexico", // Default country
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [shippingCost, setShippingCost] = useState<number | null>(null);
+  const [shippingDetails, setShippingDetails] = useState<any | null>(null);
+  const [shippingQuoteId, setShippingQuoteId] = useState<string | null>(null);
+  const [shippingRateId, setShippingRateId] = useState<string | null>(null);
 
   const calculateSubtotal = () =>
     cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -37,102 +40,222 @@ export default function CheckoutPage() {
   console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
 
   const handlePlaceOrder = async () => {
-  setError("");
-  if (isGuest && (!name || !email || !address.street || !address.city || !address.state || !address.zipCode)) {
-      setError("Please fill all required address fields.");
+    setError("");
+
+    // Validation checks
+    if (cartItems.length === 0) {
+      setError("Your cart is empty.");
       return;
-  }
-  if (cartItems.length === 0) {
-    setError("Your cart is empty.");
-    return;
-  }
+    }
 
-  setLoading(true);
-
-  try {
-    let guestToken = null;
-    
-    // Si es invitado, crear cuenta temporal
     if (isGuest) {
-      const guestRes = await fetch("/api/users/guest", {
-        method: "POST",
-        credentials: "include",
-      });
+      if (
+        !name ||
+        !email ||
+        !address.street ||
+        !address.city ||
+        !address.state ||
+        !address.zipCode
+      ) {
+        setError("Please fill all required address fields.");
+        return;
+      }
 
-      if (!guestRes.ok) {
+      if (shippingCost === null) {
+        setError("Please calculate shipping cost before placing your order.");
+        return;
+      }
+    }
+
+    setLoading(true);
+
+    try {
+      let guestToken = null;
+
+      // Si es invitado, crear cuenta temporal
+      if (isGuest) {
+        const guestRes = await fetch("/api/users/guest", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (!guestRes.ok) {
+          const guestData = await guestRes.json();
+          throw new Error(guestData.message || "Failed to create guest user");
+        }
+
         const guestData = await guestRes.json();
-        throw new Error(guestData.message || "Failed to create guest user");
+        guestToken = guestData.token; // Store token for URL, don't dispatch to Redux
       }
 
-      const guestData = await guestRes.json();
-      guestToken = guestData.token; // Store token for URL, don't dispatch to Redux
-    }
-
-    // 1. Create order in backend
-    const orderRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          items: cartItems,
-          total: calculateSubtotal(),
-          guest_name: isGuest ? name : undefined,
-          guest_email: isGuest ? email : undefined,
-          guest_address: isGuest ? address : undefined,
-        }),
-      }
-    );
-
-    const orderData = await orderRes.json();
-    if (!orderRes.ok) {
-      throw new Error(orderData.message || "Failed to create order");
-    }
-
-    // Crear preferencia de pago en el backend
-    const paymentRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-preference`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          cartItems,
-          userEmail: isGuest ? email : undefined,
-          orderId: orderData.orderId,
-          guestToken: guestToken, // Pass guest token to payment
-        }),
-      }
-    );
-
-    const paymentData = await paymentRes.json();
-
-    if (!paymentRes.ok) {
-      throw new Error(
-        paymentData.error || "Failed to create payment preference"
+      // Create order in backend
+      const orderRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            items: cartItems,
+            total: calculateSubtotal() + (shippingCost || 0),
+            shipping_price: shippingCost || 0,
+            guest_name: isGuest ? name : undefined,
+            guest_email: isGuest ? email : undefined,
+            guest_address: isGuest ? address : undefined,
+          }),
+        }
       );
+
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        throw new Error(orderData.message || "Failed to create order");
+      }
+
+      // Crear preferencia de pago en el backend
+      const paymentRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-preference`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            cartItems,
+            userEmail: isGuest ? email : undefined,
+            orderId: orderData.orderId,
+            guestToken: guestToken, // Pass guest token to payment
+            shipping_price: shippingCost || 0, // <-- Enviar shipping_price
+          }),
+        }
+      );
+
+      const paymentData = await paymentRes.json();
+
+      if (!paymentRes.ok) {
+        throw new Error(
+          paymentData.error || "Failed to create payment preference"
+        );
+      }
+
+      dispatch(clearCartItems());
+
+      // Store order info for success page
+      const orderInfo = {
+        orderId: orderData.orderId,
+        guestToken: guestToken,
+        isGuest: isGuest,
+      };
+
+      sessionStorage.setItem("pendingOrder", JSON.stringify(orderInfo));
+
+      // Redirigir a MercadoPago
+      window.location.href = paymentData.checkoutUrl;
+    } catch (err: any) {
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cotizar envío cuando la dirección esté completa
+  const handleQuote = async () => {
+    setError("");
+    setShippingCost(null);
+    setShippingDetails(null);
+    setShippingQuoteId(null);
+    setShippingRateId(null);
+
+    if (
+      !address.street ||
+      !address.city ||
+      !address.state ||
+      !address.zipCode
+    ) {
+      setError("Please fill all required address fields to quote shipping.");
+      return;
     }
 
-    dispatch(clearCartItems());
+    setLoading(true);
 
-    // Store order info for success page
-    const orderInfo = {
-      orderId: orderData.orderId,
-      guestToken: guestToken,
-      isGuest: isGuest
-    };
-    
-    sessionStorage.setItem('pendingOrder', JSON.stringify(orderInfo));
+    try {
+      const quoteData = {
+        quotation: {
+          order_id: "checkout-" + Date.now(),
+          address_from: {
+            country_code: "MX",
+            postal_code: "68258", // Cambia por tu CP de origen real
+            area_level1: "Oaxaca",
+            area_level2: "San Pablo Etla",
+            area_level3: "Centro",
+          },
+          address_to: {
+            country_code: "MX",
+            postal_code: address.zipCode,
+            area_level1: address.state,
+            area_level2: address.city,
+            area_level3: address.street,
+          },
+          parcels: [
+            {
+              length: 10,
+              width: 10,
+              height: 10,
+              weight: 1,
+            },
+          ],
+          requested_carriers: ["fedex"],
+        },
+      };
 
-    // Redirigir a MercadoPago
-    window.location.href = paymentData.checkoutUrl;
-  } catch (err: any) {
-    setError(err.message || "Something went wrong.");
-  } finally {
-    setLoading(false);
-  }
-};
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/shipping/quote`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(quoteData),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to get shipping quote");
+      }
+
+      const preferred = data.rates?.find(
+        (q: any) =>
+          (q.success === true ||
+            (q.total &&
+              q.total !== null &&
+              q.status === "price_found_internal")) &&
+          q.provider_name === "fedex"
+      );
+
+      if (preferred) {
+        setShippingCost(Number(preferred.total));
+        setShippingDetails({
+          provider: preferred.provider_name,
+          service: preferred.provider_service_name,
+          days: preferred.days,
+          currency: preferred.currency_code,
+          cost: preferred.cost,
+          total: preferred.total,
+          plan_type: preferred.plan_type,
+        });
+        setShippingQuoteId(data.id);
+        setShippingRateId(preferred.id);
+      } else {
+        setError(
+          "No shipping quotes available for your location. Please try a different address."
+        );
+      }
+    } catch (err: any) {
+      setError(
+        err.message || "Error calculating shipping cost. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] relative overflow-hidden pt-20">
@@ -156,6 +279,62 @@ export default function CheckoutPage() {
             <p className="text-lg text-[#6153E0]/80 max-w-2xl mx-auto">
               Just one step away from enjoying our premium ginger beer
             </p>
+
+            {/* Progress Steps for Guest Checkout */}
+            {isGuest && (
+              <div className="flex justify-center items-center mt-8 space-x-4">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-[#6153E0] to-[#FF6E98] rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    1
+                  </div>
+                  <span className="ml-2 text-sm font-medium text-[#6153E0]">
+                    Info
+                  </span>
+                </div>
+                <div className="w-12 h-0.5 bg-[#DDC7FF]/50"></div>
+                <div className="flex items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                      shippingCost !== null
+                        ? "bg-gradient-to-br from-[#FF991F] to-[#D6E012] text-white"
+                        : "bg-[#DDC7FF]/50 text-[#6153E0]/50"
+                    }`}
+                  >
+                    2
+                  </div>
+                  <span
+                    className={`ml-2 text-sm font-medium transition-colors duration-300 ${
+                      shippingCost !== null
+                        ? "text-[#6153E0]"
+                        : "text-[#6153E0]/50"
+                    }`}
+                  >
+                    Shipping
+                  </span>
+                </div>
+                <div className="w-12 h-0.5 bg-[#DDC7FF]/50"></div>
+                <div className="flex items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                      shippingCost !== null
+                        ? "bg-gradient-to-br from-[#6153E0] to-[#FF6E98] text-white"
+                        : "bg-[#DDC7FF]/50 text-[#6153E0]/50"
+                    }`}
+                  >
+                    3
+                  </div>
+                  <span
+                    className={`ml-2 text-sm font-medium transition-colors duration-300 ${
+                      shippingCost !== null
+                        ? "text-[#6153E0]"
+                        : "text-[#6153E0]/50"
+                    }`}
+                  >
+                    Payment
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Main Content */}
@@ -220,10 +399,23 @@ export default function CheckoutPage() {
                   ))}
                 </div>
                 <div className="border-t border-[#DDC7FF]/50 pt-4">
+                  {/* Shipping breakdown if quoted */}
+                  {shippingCost !== null && (
+                    <div className="flex justify-between items-center bg-white/80 text-[#6153E0] p-4 rounded-2xl mb-2 border border-[#DDC7FF]/30">
+                      <span className="text-lg font-semibold">Shipping:</span>
+                      <span className="text-lg font-bold">
+                        ${shippingCost.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white p-4 rounded-2xl transition-all duration-300">
                     <span className="text-lg font-semibold">Total:</span>
                     <span className="text-2xl font-bold">
-                      ${calculateSubtotal().toFixed(2)}
+                      $
+                      {(
+                        calculateSubtotal() +
+                        (shippingCost !== null ? shippingCost : 0)
+                      ).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -237,7 +429,7 @@ export default function CheckoutPage() {
                       <div className="w-8 h-8 bg-gradient-to-br from-[#FF6E98] to-[#FF991F] rounded-full flex items-center justify-center mr-3">
                         <span className="text-white text-sm">👤</span>
                       </div>
-                      Guest Information
+                      Shipping
                     </h2>
                     <div className="space-y-4 mb-8">
                       <div>
@@ -267,61 +459,82 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div>
-            <label className="block text-sm font-semibold text-[#6153E0] mb-4">
-              Shipping Address
-            </label>
-            
-            {/* Street Address */}
-            <div className="mb-3">
-              <input
-                type="text"
-                placeholder="Street address"
-                value={address.street}
-                onChange={(e) => setAddress(prev => ({ ...prev, street: e.target.value }))}
-                className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                required
-              />
-            </div>
-            
-            {/* City and State Row */}
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <input
-                type="text"
-                placeholder="City"
-                value={address.city}
-                onChange={(e) => setAddress(prev => ({ ...prev, city: e.target.value }))}
-                className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                required
-              />
-              <input
-                type="text"
-                placeholder="State/Province"
-                value={address.state}
-                onChange={(e) => setAddress(prev => ({ ...prev, state: e.target.value }))}
-                className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                required
-              />
-            </div>
-            
-            {/* ZIP and Country Row */}
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                placeholder="ZIP/Postal Code"
-                value={address.zipCode}
-                onChange={(e) => setAddress(prev => ({ ...prev, zipCode: e.target.value }))}
-                className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                required
-              />
+                        <label className="block text-sm font-semibold text-[#6153E0] mb-4">
+                          Shipping Address
+                        </label>
 
-            </div>
-          </div>
+                        {/* Street Address */}
+                        <div className="mb-3">
+                          <input
+                            type="text"
+                            placeholder="Street address"
+                            value={address.street}
+                            onChange={(e) =>
+                              setAddress((prev) => ({
+                                ...prev,
+                                street: e.target.value,
+                              }))
+                            }
+                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                            required
+                          />
+                        </div>
+
+                        {/* City and State Row */}
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          <input
+                            type="text"
+                            placeholder="City"
+                            value={address.city}
+                            onChange={(e) =>
+                              setAddress((prev) => ({
+                                ...prev,
+                                city: e.target.value,
+                              }))
+                            }
+                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                            required
+                          />
+                          <input
+                            type="text"
+                            placeholder="State/Province"
+                            value={address.state}
+                            onChange={(e) =>
+                              setAddress((prev) => ({
+                                ...prev,
+                                state: e.target.value,
+                              }))
+                            }
+                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                            required
+                          />
+                        </div>
+
+                        {/* ZIP and Country Row */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            type="text"
+                            placeholder="ZIP/Postal Code"
+                            value={address.zipCode}
+                            onChange={(e) =>
+                              setAddress((prev) => ({
+                                ...prev,
+                                zipCode: e.target.value,
+                              }))
+                            }
+                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                            required
+                          />
+                        </div>
+                      </div>
                     </div>
                   </>
                 ) : (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-gradient-to-br from-[#D6E012] to-[#6153E0] rounded-full flex items-center justify-center mx-auto mb-6">
-                      <span className="text-2xl"><Check /></span>
+                      <span className="text-2xl">
+                        <Check />
+                      </span>
                     </div>
                     <h2 className="text-2xl font-bold text-[#6153E0] mb-2">
                       Ready to Checkout
@@ -332,10 +545,113 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {/* Shipping Quote Section */}
+                <div className="mb-6">
+                  {/* <h3 className="text-lg font-bold text-[#6153E0] mb-4 flex items-center">
+                    <div className="w-6 h-6 bg-gradient-to-br from-[#FF991F] to-[#D6E012] rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-xs">🚚</span>
+                    </div>
+                    Shipping Information
+                  </h3> */}
+
+                  {/* Quote Button */}
+                  <button
+                    onClick={handleQuote}
+                    type="button"
+                    disabled={
+                      loading ||
+                      (isGuest &&
+                        (!address.street ||
+                          !address.city ||
+                          !address.state ||
+                          !address.zipCode))
+                    }
+                    className="w-full bg-gradient-to-r from-[#FF991F] to-[#D6E012] hover:from-[#D6E012] hover:to-[#FF991F] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 mb-4"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>Calculating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🚚</span>
+                        <span>Calculate Shipping Cost</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Shipping Cost Display */}
+                  {shippingCost !== null && (
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-[#D6E012]/30 mb-4 transition-all duration-300">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[#6153E0] font-semibold flex items-center">
+                          <span className="mr-2">💰</span>
+                          Shipping Cost:
+                        </span>
+                        <span className="text-xl font-bold text-[#FF991F]">
+                          ${shippingCost.toFixed(2)} MXN
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Shipping Details */}
+                  {shippingDetails && (
+                    <div className="bg-gradient-to-r from-[#FFFBF4]/90 to-[#DDC7FF]/20 backdrop-blur-sm rounded-2xl p-4 border border-[#DDC7FF]/30 transition-all duration-300">
+                      <h4 className="font-semibold text-[#6153E0] mb-3 flex items-center">
+                        <span className="mr-2">📦</span>
+                        Shipping Details
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="bg-white/60 rounded-xl p-3">
+                          <div className="text-[#6153E0]/70 mb-1">Provider</div>
+                          <div className="font-semibold text-[#6153E0]">
+                            {shippingDetails.provider}
+                          </div>
+                        </div>
+                        <div className="bg-white/60 rounded-xl p-3">
+                          <div className="text-[#6153E0]/70 mb-1">
+                            Delivery Time
+                          </div>
+                          <div className="font-semibold text-[#6153E0]">
+                            {shippingDetails.days} days
+                          </div>
+                        </div>
+                        <div className="bg-white/60 rounded-xl p-3">
+                          <div className="text-[#6153E0]/70 mb-1">Service</div>
+                          <div className="font-semibold text-[#6153E0]">
+                            {shippingDetails.service}
+                          </div>
+                        </div>
+                        <div className="bg-white/60 rounded-xl p-3">
+                          <div className="text-[#6153E0]/70 mb-1">
+                            Total Cost
+                          </div>
+                          <div className="font-semibold text-[#FF991F]">
+                            ${Number(shippingDetails.total).toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Shipping Required Notice */}
+                  {!shippingCost && isGuest && (
+                    <div className="bg-[#FF6E98]/10 border border-[#FF6E98]/30 rounded-xl p-4 backdrop-blur-sm">
+                      <p className="text-[#FF6E98] text-sm text-center flex items-center justify-center">
+                        <span className="mr-2">ℹ️</span>
+                        Please fill in your address and calculate shipping
+                        before placing your order
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {/* Place Order Button */}
                 <button
                   onClick={handlePlaceOrder}
-                  disabled={loading}
+                  disabled={loading || (isGuest && shippingCost === null)}
                   className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
                 >
                   {loading ? (
@@ -345,8 +661,14 @@ export default function CheckoutPage() {
                     </>
                   ) : (
                     <>
-                      <span><Lock /></span>
-                      <span>Place Secure Order</span>
+                      <span>
+                        <Lock />
+                      </span>
+                      <span>
+                        {isGuest && shippingCost === null
+                          ? "Calculate Shipping First"
+                          : "Place Secure Order"}
+                      </span>
                     </>
                   )}
                 </button>

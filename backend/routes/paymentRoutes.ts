@@ -13,6 +13,8 @@ const payment = new Payment(client);
 
 router.post('/create-preference', protectOptional, createPreference);
 
+// router.post('/process_payment', processPayment);
+
 router.post('/webhook', async (req: Request, res: Response) => {
   const secret = process.env.MP_WEBHOOK_SECRET!;
   if (!validateMPWebhookSignature(req, secret)) {
