@@ -14,6 +14,9 @@ export default function OrderPage() {
   const [order, setOrder] = useState<Order>();
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [skydropxOrder, setSkydropxOrder] = useState<any>(null);
+  const [skydropxLoading, setSkydropxLoading] = useState(false);
+  const [skydropxError, setSkydropxError] = useState(false);
 
   const params = useParams();
   const searchParams = useSearchParams();
@@ -92,6 +95,38 @@ export default function OrderPage() {
       setIsLoading(false);
     }
   }, [id, userInfo, searchParams]);
+
+  // Fetch Skydropx shipment info when order is loaded and has status paid/processing
+  useEffect(() => {
+    if (!order || !order.id) return;
+    setSkydropxLoading(true);
+    fetch(`/api/shipping/skydropx-shipments/by-order/${order.id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("No Skydropx shipment");
+        return res.json();
+      })
+      .then((data) => {
+        // Map Skydropx API response to a flat object for rendering
+        setSkydropxOrder({
+          status:
+            data.data?.attributes?.workflow_status ||
+            data.data?.attributes?.status ||
+            "N/A",
+          tracking_number:
+            data.data?.attributes?.master_tracking_number || "N/A",
+          carrier: data.data?.attributes?.carrier_name || "N/A",
+          service_level_name:
+            data.data?.attributes?.service_level_name || "N/A",
+          label_url: data.data?.attributes?.label_url || null,
+        });
+        setSkydropxLoading(false);
+      })
+      .catch(() => {
+        setSkydropxOrder(null);
+        setSkydropxLoading(false);
+        setSkydropxError(true);
+      });
+  }, [order]);
 
   // Show loading while checking authentication
   if (isLoading) {
@@ -249,6 +284,71 @@ export default function OrderPage() {
                   </div>
                 </div>
               )}
+
+              {/* Skydropx Shipping Info */}
+              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <Package className="w-6 h-6 text-[#6153E0]" />
+                  Shipping Status
+                </h2>
+                {skydropxLoading && (
+                  <p className="text-gray-600">Loading shipping info...</p>
+                )}
+                {!skydropxLoading && skydropxOrder && (
+                  <div className="space-y-2 text-left">
+                    <div>
+                      <span className="font-medium text-gray-700">Status:</span>{" "}
+                      <span className="font-semibold">
+                        {skydropxOrder.status}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">
+                        Tracking:
+                      </span>{" "}
+                      <span className="font-mono">
+                        {skydropxOrder.tracking_number || "N/A"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">
+                        Carrier:
+                      </span>{" "}
+                      <span>
+                        {skydropxOrder.carrier ||
+                          skydropxOrder.carrier_name ||
+                          "N/A"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">
+                        Service:
+                      </span>{" "}
+                      <span>{skydropxOrder.service_level_name || "N/A"}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Label:</span>{" "}
+                      {skydropxOrder.label_url ? (
+                        <a
+                          href={skydropxOrder.label_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#6153E0] underline"
+                        >
+                          Download
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
+                    </div>
+                  </div>
+                )}
+                {!skydropxLoading && skydropxError && (
+                  <p className="text-gray-600">
+                    No shipping info found for this order.
+                  </p>
+                )}
+              </div>
 
               {/* Order Items */}
               <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">

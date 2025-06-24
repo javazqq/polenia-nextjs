@@ -18,13 +18,17 @@ export default function CheckoutPage() {
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
 
   // Form state for guest checkout
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  // const [name, setName] = useState("");
+  // const [email, setEmail] = useState("");
   const [address, setAddress] = useState({
-    street: "",
+    name: "",
+    email:"",
+    phone:"",
+    street1: "",
     city: "",
     state: "",
     zipCode: "",
+    reference: "",  
     country: "Mexico", // Default country
   });
   const [loading, setLoading] = useState(false);
@@ -50,12 +54,14 @@ export default function CheckoutPage() {
 
     if (isGuest) {
       if (
-        !name ||
-        !email ||
-        !address.street ||
+        !address.name ||
+        !address.email ||
+        !address.phone ||
+        !address.street1 ||
         !address.city ||
         !address.state ||
-        !address.zipCode
+        !address.zipCode ||
+        !address.reference
       ) {
         setError("Please fill all required address fields.");
         return;
@@ -99,8 +105,8 @@ export default function CheckoutPage() {
             items: cartItems,
             total: calculateSubtotal() + (shippingCost || 0),
             shipping_price: shippingCost || 0,
-            guest_name: isGuest ? name : undefined,
-            guest_email: isGuest ? email : undefined,
+            guest_name: isGuest ? address.name : undefined,
+            guest_email: isGuest ? address.email : undefined,
             guest_address: isGuest ? address : undefined,
           }),
         }
@@ -109,6 +115,49 @@ export default function CheckoutPage() {
       const orderData = await orderRes.json();
       if (!orderRes.ok) {
         throw new Error(orderData.message || "Failed to create order");
+      }
+
+      // Create shipping record in backend
+      const shippingRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/shipping`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            order_id: orderData.orderId,
+            shipping_quotation_id: shippingQuoteId,
+            shipping_rate_id: shippingRateId,
+            address_from: JSON.stringify({
+              street1: "Calle los molinos #7",
+              name: "Jorge Vazquez",
+              company: "Polenia",
+              phone:"2282282364",
+              email:"jorge.avazqqrespaldo@gmail.com",
+              reference:"Escuela de tiro con arco Mendiola",
+            }),
+            address_to: JSON.stringify(address),
+            parcels: JSON.stringify([
+              {
+                length: 10,
+                width: 10,
+                height: 10,
+                weight: 1,
+                package_number: 1,
+                package_protected: true,
+                declared_value: 2500,
+                consignment_note: 53102400,
+                package_type: "4G",
+
+              },
+            ]),
+          }),
+        }
+      );
+      if (!shippingRes.ok) {
+        const shippingErr = await shippingRes.json();
+        throw new Error(
+          shippingErr.error || "Failed to create shipping record"
+        );
       }
 
       // Crear preferencia de pago en el backend
@@ -120,7 +169,8 @@ export default function CheckoutPage() {
           credentials: "include",
           body: JSON.stringify({
             cartItems,
-            userEmail: isGuest ? email : undefined,
+            userName: isGuest ? address.name : undefined,
+            userEmail: isGuest ? address.email : undefined,
             orderId: orderData.orderId,
             guestToken: guestToken, // Pass guest token to payment
             shipping_price: shippingCost || 0, // <-- Enviar shipping_price
@@ -165,7 +215,7 @@ export default function CheckoutPage() {
     setShippingRateId(null);
 
     if (
-      !address.street ||
+      !address.street1 ||
       !address.city ||
       !address.state ||
       !address.zipCode
@@ -192,7 +242,7 @@ export default function CheckoutPage() {
             postal_code: address.zipCode,
             area_level1: address.state,
             area_level2: address.city,
-            area_level3: address.street,
+            area_level3: address.street1,
           },
           parcels: [
             {
@@ -202,7 +252,7 @@ export default function CheckoutPage() {
               weight: 1,
             },
           ],
-          requested_carriers: ["fedex"],
+          // requested_carriers: ["fedex"], // Quitar filtro para cotizar con todos los carriers
         },
       };
 
@@ -223,11 +273,8 @@ export default function CheckoutPage() {
 
       const preferred = data.rates?.find(
         (q: any) =>
-          (q.success === true ||
-            (q.total &&
-              q.total !== null &&
-              q.status === "price_found_internal")) &&
-          q.provider_name === "fedex"
+          q.success === true ||
+          (q.total && q.total !== null && q.status === "price_found_internal")
       );
 
       if (preferred) {
@@ -439,8 +486,10 @@ export default function CheckoutPage() {
                         <input
                           type="text"
                           placeholder="Enter your full name"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
+                          value={address.name}
+                          onChange={(e) => 
+                            setAddress((prev) => ({ ...prev, name: e.target.value }))}
+                            //setName(e.target.value)}
                           className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
                           required
                         />
@@ -452,8 +501,27 @@ export default function CheckoutPage() {
                         <input
                           type="email"
                           placeholder="Enter your email address"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          value={address.email}
+                          onChange={(e) => 
+                            setAddress((prev) => ({ ...prev, email: e.target.value }))
+                            // setEmail(e.target.value)
+                          }
+                          className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-[#6153E0] mb-2">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="Enter your phone number"
+                          value={address.phone}
+                          onChange={(e) => 
+                            setAddress((prev) => ({ ...prev, phone: e.target.value }))
+                            // setPhone(e.target.value)
+                          }
                           className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
                           required
                         />
@@ -468,11 +536,11 @@ export default function CheckoutPage() {
                           <input
                             type="text"
                             placeholder="Street address"
-                            value={address.street}
+                            value={address.street1}
                             onChange={(e) =>
                               setAddress((prev) => ({
                                 ...prev,
-                                street: e.target.value,
+                                street1: e.target.value,
                               }))
                             }
                             className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
@@ -526,6 +594,23 @@ export default function CheckoutPage() {
                             required
                           />
                         </div>
+
+                        {/* Reference */}
+                        <div className="grid gap-3 mt-3">
+                          <input
+                            type="text"
+                            placeholder="Reference"
+                            value={address.reference}
+                            onChange={(e) =>
+                              setAddress((prev) => ({
+                                ...prev,
+                                reference: e.target.value,
+                              }))
+                            }
+                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                            required
+                          />
+                        </div>
                       </div>
                     </div>
                   </>
@@ -561,7 +646,7 @@ export default function CheckoutPage() {
                     disabled={
                       loading ||
                       (isGuest &&
-                        (!address.street ||
+                        (!address.street1 ||
                           !address.city ||
                           !address.state ||
                           !address.zipCode))

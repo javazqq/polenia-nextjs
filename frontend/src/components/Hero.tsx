@@ -28,10 +28,10 @@ export default function Hero() {
 
           {/* Subtitle */}
           <p className="text-base md:text-2xl text-[#6153E0]/80 mb-8 max-w-2xl mx-auto leading-relaxed font-light opacity-0 animate-fade-in-down [animation-delay:300ms]">
-            Experience the perfect blend of spicy ginger and refreshing zest.
+            クラフトジンジャービール専門店
             <br />
             <span className="font-medium text-[#6153E0]">
-              Crafted for the bold.
+              Crafted for the <strong><em>bold</em></strong>
             </span>
           </p>
 
@@ -39,7 +39,7 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center opacity-0 animate-fade-in-down [animation-delay:500ms]">
             <a href="/products" className="group w-full sm:w-auto">
               <button className="w-full sm:w-auto bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-6 py-3 md:px-10 md:py-4 rounded-2xl text-base md:text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-[#FF6E98] group-hover:to-[#FF991F] flex items-center justify-center">
-                Order Now
+                今すぐ注文!
                 <span className="ml-2 flex items-center group-hover:translate-x-1 transition-transform duration-300">
                   <ArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
@@ -47,7 +47,7 @@ export default function Hero() {
             </a>
             <a href="/about" className="group w-full sm:w-auto">
               <button className="w-full sm:w-auto bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] px-6 py-3 md:px-10 md:py-4 rounded-2xl text-base md:text-lg font-semibold hover:bg-[#FFFBF4] hover:shadow-xl transition-all duration-300 border border-[#DDC7FF]">
-                Learn More
+                もっと詳しく知る
               </button>
             </a>
           </div>
