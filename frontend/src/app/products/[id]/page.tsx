@@ -73,21 +73,80 @@ export default function ProductPage() {
       });
   }, [id]);
 
-  const handleAddToCart = () => {
-    if (!product) return;
+const handleAddToCart = () => {
+  if (!product) return;
 
-    dispatch(
-      addToCart({
-        id: Number(product.id),
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        quantity,
-      })
-    );
+const defaultParcel: {
+  length: number;
+  width: number;
+  height: number;
+  weight: number;
+  packageType: string;
+  declaredValue: number;
+  packageNumber: number;
+  consignmentNote: string;
+  packageProtected: boolean;
+} = {
+  length: 10,
+  width: 10,
+  height: 10,
+  weight: 1,
+  packageType: "4G",
+  declaredValue: 2500,
+  packageNumber: 1,
+  consignmentNote: "50202300",
+  packageProtected: true,
+};
 
-    dispatch(openCartDrawer());
-  };
+let parcelData = defaultParcel;
+if (product.parcel) {
+  if (typeof product.parcel === "string") {
+    try {
+      const parsedParcel = JSON.parse(product.parcel);
+      // Mapear de snake_case a camelCase
+      parcelData = {
+        length: parsedParcel.length,
+        width: parsedParcel.width,
+        height: parsedParcel.height,
+        weight: parsedParcel.weight,
+        packageType: parsedParcel.package_type || "4G",
+        declaredValue: parsedParcel.declared_value || 2500,
+        packageNumber: parsedParcel.package_number || 1,
+        consignmentNote: parsedParcel.consignment_note || "50202300",
+        packageProtected: parsedParcel.package_protected ?? true,
+      };
+    } catch {
+      parcelData = defaultParcel;
+    }
+  } else {
+    // Si ya viene como objeto, mapear también
+    parcelData = {
+      length: product.parcel.length,
+      width: product.parcel.width,
+      height: product.parcel.height,
+      weight: product.parcel.weight,
+      packageType: product.parcel.packageType || "4G",
+      declaredValue: product.parcel.declaredValue || 2500,
+      packageNumber: product.parcel.packageNumber || 1,
+      consignmentNote: product.parcel.consignmentNote || "50202300",
+      packageProtected: product.parcel.packageProtected ?? true,
+    };
+  }
+}
+
+  dispatch(
+    addToCart({
+      id: Number(product.id),
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity,
+      parcel: parcelData,
+    })
+  );
+
+  dispatch(openCartDrawer());
+};
 
   if (isLoading) {
     return (

@@ -13,6 +13,15 @@ export const createShipping = async (req: Request, res: Response) => {
       parcels,
     } = req.body;
 
+    console.log("Creating shipping record with data:", JSON.stringify({
+      order_id,
+      shipping_quotation_id,
+      shipping_rate_id,
+      address_from,
+      address_to,
+      parcels
+    }, null, 2));
+
     const result = await pool.query(
       `INSERT INTO shipping
         (order_id, shipping_quotation_id, shipping_rate_id, address_from, address_to, parcels)
@@ -28,8 +37,10 @@ export const createShipping = async (req: Request, res: Response) => {
       ]
     );
 
+    console.log("Shipping record created:", JSON.stringify(result.rows[0], null, 2));
     res.status(201).json(result.rows[0]);
   } catch (error) {
+    console.error("Error creating shipping record:", error);
     res.status(500).json({ error: "Error creating shipping record", details: error });
   }
 };

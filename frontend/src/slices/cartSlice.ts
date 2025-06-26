@@ -7,6 +7,17 @@ export interface CartItem {
   price: number;
   quantity: number;
   image: string;
+  parcel?:{
+    length: number;
+    width: number;
+    height: number;
+    weight: number;
+    packageNumber: number;
+    packageType: string;
+    declaredValue: number;
+    packageProtected: boolean;
+    consignmentNote: string;
+  }
 }
 
 
@@ -51,7 +62,7 @@ const initialState: CartState = (() => {
   return {
     cartItems: [],
     shippingAddress: { address: '', city: '', postalCode: '', country: '' },
-    paymentMethod: 'Paypal',
+    paymentMethod: 'Mercado Pago',
     itemsPrice: '0.00',
     shippingPrice: '0.00',
     taxPrice: '0.00',

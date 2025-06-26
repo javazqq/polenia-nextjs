@@ -13,6 +13,7 @@ export const getProducts = async (_req: Request, res: Response) => {
       price: Number(product.price),
       image: product.image,
       countInStock: Number(product.count_in_stock),
+      parcel: product.parcel,
     }));
 
     res.json(products);
@@ -41,6 +42,7 @@ export const getProductById = async (req: Request, res: Response) => {
       price: Number(product.price),
       image: product.image,
       countInStock: Number(product.count_in_stock),
+      parcel: product.parcel,
     };
 
     res.json(formattedProduct);
@@ -52,7 +54,7 @@ export const getProductById = async (req: Request, res: Response) => {
 
 // CREATE Product
 export const createProduct = async (req: Request, res: Response) => {
-  const { name, description, price, image, countInStock } = req.body;
+  const { name, description, price, image, countInStock, parcel } = req.body;
 
   if (!name || !price || !countInStock) {
     res.status(400).json({ message: 'Name, price, and stock count are required' });
@@ -61,10 +63,10 @@ export const createProduct = async (req: Request, res: Response) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO products (name, description, price, image, count_in_stock)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO products (name, description, price, image, count_in_stock, parcel)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [name, description, price, image, countInStock]
+      [name, description, price, image, countInStock, parcel]
     );
 
     const product = result.rows[0];
@@ -75,6 +77,7 @@ export const createProduct = async (req: Request, res: Response) => {
       price: Number(product.price),
       image: product.image,
       countInStock: Number(product.count_in_stock),
+      parcel: product.parcel,
     });
   } catch (err) {
     console.error(err);
@@ -85,10 +88,10 @@ export const createProduct = async (req: Request, res: Response) => {
 // UPDATE Product
 export const updateProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, description, price, image, countInStock } = req.body;
+  const { name, description, price, image, countInStock, parcel } = req.body;
 
   // Check if at least one field is provided
-  if (!name && !description && price === undefined && !image && countInStock === undefined) {
+  if (!name && !description && price === undefined && !image && countInStock === undefined && parcel === undefined) {
     return res.status(400).json({ message: 'At least one field is required for update' });
   }
 
@@ -123,6 +126,11 @@ export const updateProduct = async (req: Request, res: Response) => {
       values.push(countInStock);
       paramIndex++;
     }
+    if (parcel !== undefined) {
+      fields.push(`parcel = $${paramIndex}`);
+      values.push(parcel);
+      paramIndex++;
+    }
 
     values.push(id); // Add ID as the last parameter
     const query = `UPDATE products SET ${fields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
@@ -141,6 +149,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       price: Number(product.price),
       image: product.image,
       countInStock: Number(product.count_in_stock),
+      parcel: product.parcel,
     });
   } catch (err) {
     console.error(err);

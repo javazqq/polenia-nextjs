@@ -65,7 +65,7 @@ router.post("/quote", async (req: Request, res: Response) => {
         },
       });
       finalData = await getResponse.json();
-      console.log("Respuesta GET:", finalData);
+      //console.log("Respuesta GET:", finalData);
       attempts++;
     }
     res.json(finalData);

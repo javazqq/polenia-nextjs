@@ -71,6 +71,8 @@ router.post("/webhook", async (req: Request, res: Response) => {
           [orderId]
         );
         const shipping = shippingResult.rows[0];
+        console.log("Raw shipping data from DB:", JSON.stringify(shipping, null, 2));
+        
         if (
           shipping &&
           shipping.shipping_quotation_id &&
@@ -99,28 +101,70 @@ router.post("/webhook", async (req: Request, res: Response) => {
             reference: addressTo.reference || "",
           };
 
-          let parcelInfo = shipping.parcels;
+          let parcelInfo = shipping.parcels; // Cambiado de 'parcel' a 'parcels'
+          console.log("Raw parcel info from DB:", parcelInfo);
+          console.log("Type of parcel info:", typeof parcelInfo);
+          
           try {
-            if (typeof parcelInfo === "string")
+            if (typeof parcelInfo === "string" && parcelInfo.trim() !== "") {
               parcelInfo = JSON.parse(parcelInfo);
+              console.log("Parsed parcel info:", JSON.stringify(parcelInfo, null, 2));
+            }
           } catch (e) {
-            console.error("Error parsing parcels:", e);
-            parcelInfo = [];
+            console.error("Error parsing parcel:", e);
+            parcelInfo = undefined;
           }
-          const shippingParcelInfo = {
-            package_number: parcelInfo.package_number || "1",
-            package_protected: parcelInfo.package_protected || true,
-            declared_value: parcelInfo.declared_value || 2500,
-            consignment_note: parcelInfo.consignment_note || "53102400",
-            package_type: parcelInfo.package_type || "4G",
-          };
+
+          // Si parcelInfo es un arreglo, úsalo directamente; si es un objeto, mételo en un arreglo; si no existe, usa arreglo vacío
+          let packages: any[] = [];
+          if (Array.isArray(parcelInfo)) {
+            packages = parcelInfo;
+            console.log("Using parcel as array, length:", packages.length);
+          } else if (parcelInfo && typeof parcelInfo === "object") {
+            packages = [parcelInfo];
+            console.log("Converting single parcel to array");
+          } else {
+            packages = [];
+            console.log("No valid parcel info, using empty array");
+          }
+
+          console.log("Packages before mapping:", JSON.stringify(packages, null, 2));
+
+          // Mapear campos y agregar defaults
+          packages = packages.map((p) => ({
+            package_number: p.package_number || "1",
+            package_protected: p.package_protected ?? true,
+            declared_value: p.declared_value || 2500,
+            consignment_note: p.consignment_note || "50202300",
+            package_type: p.package_type || "4G",
+            length: p.length,
+            width: p.width,
+            height: p.height,
+            weight: p.weight,
+          }));
+
+          // Si no hay paquetes válidos, crear uno por defecto
+          if (packages.length === 0) {
+            packages = [{
+              package_number: "1",
+              package_protected: true,
+              declared_value: 2500,
+              consignment_note: "50202300",
+              package_type: "4G",
+              length: 10,
+              width: 10,
+              height: 10,
+              weight: 1,
+            }];
+          }
+
           const skydropxOrderBody = {
             shipment: {
               rate_id: shipping.shipping_rate_id || "",
-              printing_format:"thermal",
+              printing_format: "standard", // Cambiado de "pdf" a "zpl"
               address_from: shipping.address_from || {},
               address_to: filteredAddressTo,
-              packages: [shippingParcelInfo],
+              packages,
             },
           };
           // Log the body of the request to create the shipment in Skydropx

@@ -5,4 +5,15 @@ export type Product = {
   image: string;
   price: number;
   countInStock: number;
+  parcel: {
+    length: number;
+    width: number;
+    height: number;
+    weight: number;
+    packageType: string;
+    declaredValue: number;
+    packageNumber: number;
+    consignmentNote: string;
+    packageProtected: boolean;
+  }
 };

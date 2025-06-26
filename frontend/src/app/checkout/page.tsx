@@ -118,6 +118,48 @@ export default function CheckoutPage() {
       }
 
       // Create shipping record in backend
+      // Preparar los paquetes con todos los campos necesarios para Skydropx
+      console.log("Cart items before creating parcels:", JSON.stringify(cartItems, null, 2));
+      
+      const parcelsForShipping: any[] = [];
+      cartItems.forEach((item) => {
+        console.log("Processing item:", item.name, "parcel:", item.parcel);
+        // Solo usar quantity, no multiplicar por packageNumber
+        for (let i = 0; i < item.quantity; i++) {
+          if (item.parcel) {
+            const { length, width, height, weight, packageNumber, consignmentNote, packageType, packageProtected, declaredValue } = item.parcel;
+            console.log("Using parcel data:", { length, width, height, weight, packageNumber, consignmentNote, packageType, packageProtected, declaredValue });
+            parcelsForShipping.push({
+              length,
+              width,
+              height,
+              weight,
+              package_number: 1, // Cada objeto representa un paquete individual
+              package_protected: packageProtected ?? true,
+              declared_value: declaredValue || 2500,
+              consignment_note: consignmentNote || "50202300", // Como string
+              package_type: packageType || "4G",
+            });
+          } else {
+            console.log("Using fallback parcel data for item:", item.name);
+            parcelsForShipping.push({
+              length: 10,
+              width: 10,
+              height: 10,
+              weight: 1,
+              package_number: 1,
+              package_protected: true,
+              declared_value: 2500,
+              consignment_note: "50202300", // Como string
+              package_type: "4G",
+            });
+          }
+        }
+      });
+
+      console.log("Final parcels for shipping:", JSON.stringify(parcelsForShipping, null, 2));
+      console.log("Total parcels count:", parcelsForShipping.length);
+
       const shippingRes = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/shipping`,
         {
@@ -136,20 +178,7 @@ export default function CheckoutPage() {
               reference:"Escuela de tiro con arco Mendiola",
             }),
             address_to: JSON.stringify(address),
-            parcels: JSON.stringify([
-              {
-                length: 10,
-                width: 10,
-                height: 10,
-                weight: 1,
-                package_number: 1,
-                package_protected: true,
-                declared_value: 2500,
-                consignment_note: 53102400,
-                package_type: "4G",
-
-              },
-            ]),
+            parcels: JSON.stringify(parcelsForShipping),
           }),
         }
       );
@@ -226,7 +255,31 @@ export default function CheckoutPage() {
 
     setLoading(true);
 
-    try {
+    try {      const parcels: any[] = [];
+      cartItems.forEach((item) => {
+        // Solo usar quantity, no multiplicar por packageNumber
+        for (let i = 0; i < item.quantity; i++) {
+          if (item.parcel) {
+            const { length, width, height, weight } = item.parcel;
+            // Para cotización, solo enviar dimensiones básicas
+            parcels.push({ 
+              length, 
+              width, 
+              height, 
+              weight
+            });
+          } else {
+            // Fallback si no hay parcel en el producto
+            parcels.push({
+              length: 10,
+              width: 10,
+              height: 10,
+              weight: 1
+            });
+          }
+        }
+      });
+
       const quoteData = {
         quotation: {
           order_id: "checkout-" + Date.now(),
@@ -244,14 +297,7 @@ export default function CheckoutPage() {
             area_level2: address.city,
             area_level3: address.street1,
           },
-          parcels: [
-            {
-              length: 10,
-              width: 10,
-              height: 10,
-              weight: 1,
-            },
-          ],
+          parcels,
           // requested_carriers: ["fedex"], // Quitar filtro para cotizar con todos los carriers
         },
       };

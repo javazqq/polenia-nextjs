@@ -9,7 +9,7 @@ export interface OrderItem {
 }
 
 export interface Address {
-  street: string;
+  street1: string;
   city: string;
   state: string;
   zipCode: string;
