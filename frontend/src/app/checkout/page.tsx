@@ -22,13 +22,13 @@ export default function CheckoutPage() {
   // const [email, setEmail] = useState("");
   const [address, setAddress] = useState({
     name: "",
-    email:"",
-    phone:"",
+    email: "",
+    phone: "",
     street1: "",
     city: "",
     state: "",
     zipCode: "",
-    reference: "",  
+    reference: "",
     country: "Mexico", // Default country
   });
   const [loading, setLoading] = useState(false);
@@ -119,16 +119,39 @@ export default function CheckoutPage() {
 
       // Create shipping record in backend
       // Preparar los paquetes con todos los campos necesarios para Skydropx
-      console.log("Cart items before creating parcels:", JSON.stringify(cartItems, null, 2));
-      
+      console.log(
+        "Cart items before creating parcels:",
+        JSON.stringify(cartItems, null, 2)
+      );
+
       const parcelsForShipping: any[] = [];
       cartItems.forEach((item) => {
         console.log("Processing item:", item.name, "parcel:", item.parcel);
         // Solo usar quantity, no multiplicar por packageNumber
         for (let i = 0; i < item.quantity; i++) {
           if (item.parcel) {
-            const { length, width, height, weight, packageNumber, consignmentNote, packageType, packageProtected, declaredValue } = item.parcel;
-            console.log("Using parcel data:", { length, width, height, weight, packageNumber, consignmentNote, packageType, packageProtected, declaredValue });
+            const {
+              length,
+              width,
+              height,
+              weight,
+              packageNumber,
+              consignmentNote,
+              packageType,
+              packageProtected,
+              declaredValue,
+            } = item.parcel;
+            console.log("Using parcel data:", {
+              length,
+              width,
+              height,
+              weight,
+              packageNumber,
+              consignmentNote,
+              packageType,
+              packageProtected,
+              declaredValue,
+            });
             parcelsForShipping.push({
               length,
               width,
@@ -157,7 +180,10 @@ export default function CheckoutPage() {
         }
       });
 
-      console.log("Final parcels for shipping:", JSON.stringify(parcelsForShipping, null, 2));
+      console.log(
+        "Final parcels for shipping:",
+        JSON.stringify(parcelsForShipping, null, 2)
+      );
       console.log("Total parcels count:", parcelsForShipping.length);
 
       const shippingRes = await fetch(
@@ -173,9 +199,9 @@ export default function CheckoutPage() {
               street1: "Calle los molinos #7",
               name: "Jorge Vazquez",
               company: "Polenia",
-              phone:"2282282364",
-              email:"jorge.avazqqrespaldo@gmail.com",
-              reference:"Escuela de tiro con arco Mendiola",
+              phone: "2282282364",
+              email: "jorge.avazqqrespaldo@gmail.com",
+              reference: "Escuela de tiro con arco Mendiola",
             }),
             address_to: JSON.stringify(address),
             parcels: JSON.stringify(parcelsForShipping),
@@ -255,18 +281,19 @@ export default function CheckoutPage() {
 
     setLoading(true);
 
-    try {      const parcels: any[] = [];
+    try {
+      const parcels: any[] = [];
       cartItems.forEach((item) => {
         // Solo usar quantity, no multiplicar por packageNumber
         for (let i = 0; i < item.quantity; i++) {
           if (item.parcel) {
             const { length, width, height, weight } = item.parcel;
             // Para cotización, solo enviar dimensiones básicas
-            parcels.push({ 
-              length, 
-              width, 
-              height, 
-              weight
+            parcels.push({
+              length,
+              width,
+              height,
+              weight,
             });
           } else {
             // Fallback si no hay parcel en el producto
@@ -274,7 +301,7 @@ export default function CheckoutPage() {
               length: 10,
               width: 10,
               height: 10,
-              weight: 1
+              weight: 1,
             });
           }
         }
@@ -533,9 +560,13 @@ export default function CheckoutPage() {
                           type="text"
                           placeholder="Enter your full name"
                           value={address.name}
-                          onChange={(e) => 
-                            setAddress((prev) => ({ ...prev, name: e.target.value }))}
-                            //setName(e.target.value)}
+                          onChange={(e) =>
+                            setAddress((prev) => ({
+                              ...prev,
+                              name: e.target.value,
+                            }))
+                          }
+                          //setName(e.target.value)}
                           className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
                           required
                         />
@@ -548,8 +579,12 @@ export default function CheckoutPage() {
                           type="email"
                           placeholder="Enter your email address"
                           value={address.email}
-                          onChange={(e) => 
-                            setAddress((prev) => ({ ...prev, email: e.target.value }))
+                          onChange={
+                            (e) =>
+                              setAddress((prev) => ({
+                                ...prev,
+                                email: e.target.value,
+                              }))
                             // setEmail(e.target.value)
                           }
                           className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
@@ -564,8 +599,12 @@ export default function CheckoutPage() {
                           type="tel"
                           placeholder="Enter your phone number"
                           value={address.phone}
-                          onChange={(e) => 
-                            setAddress((prev) => ({ ...prev, phone: e.target.value }))
+                          onChange={
+                            (e) =>
+                              setAddress((prev) => ({
+                                ...prev,
+                                phone: e.target.value,
+                              }))
                             // setPhone(e.target.value)
                           }
                           className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"

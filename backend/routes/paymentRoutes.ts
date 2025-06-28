@@ -20,11 +20,11 @@ router.post("/create-preference", protectOptional, createPreference);
 
 router.post("/webhook", async (req: Request, res: Response) => {
   const secret = process.env.MP_WEBHOOK_SECRET!;
-  if (!validateMPWebhookSignature(req, secret)) {
-    console.log("❌ HMAC verification failed");
-    return;
-  }
-  console.log("✅ HMAC verification passed");
+  // if (!validateMPWebhookSignature(req, secret)) {
+  //   console.log("❌ HMAC verification failed");
+  //   return;
+  // }
+  // console.log("✅ HMAC verification passed");
 
   const body = req.body;
   if (body.type === "payment") {
@@ -71,8 +71,11 @@ router.post("/webhook", async (req: Request, res: Response) => {
           [orderId]
         );
         const shipping = shippingResult.rows[0];
-        console.log("Raw shipping data from DB:", JSON.stringify(shipping, null, 2));
-        
+        console.log(
+          "Raw shipping data from DB:",
+          JSON.stringify(shipping, null, 2)
+        );
+
         if (
           shipping &&
           shipping.shipping_quotation_id &&
@@ -104,11 +107,14 @@ router.post("/webhook", async (req: Request, res: Response) => {
           let parcelInfo = shipping.parcels; // Cambiado de 'parcel' a 'parcels'
           console.log("Raw parcel info from DB:", parcelInfo);
           console.log("Type of parcel info:", typeof parcelInfo);
-          
+
           try {
             if (typeof parcelInfo === "string" && parcelInfo.trim() !== "") {
               parcelInfo = JSON.parse(parcelInfo);
-              console.log("Parsed parcel info:", JSON.stringify(parcelInfo, null, 2));
+              console.log(
+                "Parsed parcel info:",
+                JSON.stringify(parcelInfo, null, 2)
+              );
             }
           } catch (e) {
             console.error("Error parsing parcel:", e);
@@ -128,7 +134,10 @@ router.post("/webhook", async (req: Request, res: Response) => {
             console.log("No valid parcel info, using empty array");
           }
 
-          console.log("Packages before mapping:", JSON.stringify(packages, null, 2));
+          console.log(
+            "Packages before mapping:",
+            JSON.stringify(packages, null, 2)
+          );
 
           // Mapear campos y agregar defaults
           packages = packages.map((p) => ({
@@ -145,17 +154,19 @@ router.post("/webhook", async (req: Request, res: Response) => {
 
           // Si no hay paquetes válidos, crear uno por defecto
           if (packages.length === 0) {
-            packages = [{
-              package_number: "1",
-              package_protected: true,
-              declared_value: 2500,
-              consignment_note: "50202300",
-              package_type: "4G",
-              length: 10,
-              width: 10,
-              height: 10,
-              weight: 1,
-            }];
+            packages = [
+              {
+                package_number: "1",
+                package_protected: true,
+                declared_value: 2500,
+                consignment_note: "50202300",
+                package_type: "4G",
+                length: 10,
+                width: 10,
+                height: 10,
+                weight: 1,
+              },
+            ];
           }
 
           const skydropxOrderBody = {

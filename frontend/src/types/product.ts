@@ -15,5 +15,5 @@ export type Product = {
     packageNumber: number;
     consignmentNote: string;
     packageProtected: boolean;
-  }
+  };
 };

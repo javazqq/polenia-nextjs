@@ -65,10 +65,18 @@ export const createOrder = async (
           ? parseInt(item.id, 10)
           : item.id;
 
+            // Obtén el nombre del producto
+  const productRes = await pool.query(
+    `SELECT name FROM products WHERE id = $1`,
+    [productIdInt]
+  );
+  const productName = productRes.rows[0]?.name || null;
+
+
       await pool.query(
-        `INSERT INTO order_items (order_id, product_id, quantity, price)
-         VALUES ($1, $2, $3, $4)`,
-        [orderId, productIdInt, item.quantity, item.price]
+        `INSERT INTO order_items (order_id, product_id, quantity, price, product_name)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [orderId, productIdInt, item.quantity, item.price, productName]
       );
     }
 
@@ -123,7 +131,7 @@ export const getAllOrders = async (
             'productId', oi.product_id,
             'quantity', oi.quantity,
             'price', oi.price,
-            'name', p.name
+            'name', COALESCE(p.name, oi.product_name)
           )
         ) AS items
       FROM orders o
@@ -205,10 +213,11 @@ export const getOrderById = async (
 
     // Get order items
     const items = await pool.query(
-      `SELECT oi.*, p.name, p.image FROM order_items oi
-       JOIN products p ON oi.product_id = p.id
-       WHERE oi.order_id = $1`,
-      [id]
+      `SELECT oi.*, COALESCE(p.name, oi.product_name) AS name, p.image
+   FROM order_items oi
+   LEFT JOIN products p ON oi.product_id = p.id
+   WHERE oi.order_id = $1`,
+  [id]
     );
 
     res.json({ ...orderData, items: items.rows });

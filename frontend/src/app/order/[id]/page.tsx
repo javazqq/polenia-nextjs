@@ -114,6 +114,7 @@ export default function OrderPage() {
         return res.json();
       })
       .then((data) => {
+        console.log("Skydropx shipment data:", data);
         // Map Skydropx API response to a flat object for rendering
         setSkydropxOrder({
           status:

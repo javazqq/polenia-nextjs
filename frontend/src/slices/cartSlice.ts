@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // --- Types ---
 export interface CartItem {
@@ -7,7 +7,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   image: string;
-  parcel?:{
+  parcel?: {
     length: number;
     width: number;
     height: number;
@@ -17,9 +17,8 @@ export interface CartItem {
     declaredValue: number;
     packageProtected: boolean;
     consignmentNote: string;
-  }
+  };
 }
-
 
 export interface ShippingAddress {
   address: string;
@@ -41,18 +40,16 @@ export interface CartState {
 
 // --- Utils ---
 const updateCart = (state: CartState) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('cart', JSON.stringify(state));
+  if (typeof window !== "undefined") {
+    localStorage.setItem("cart", JSON.stringify(state));
   }
   return state;
 };
 
-
-
 // --- Initial State ---
 const initialState: CartState = (() => {
-  if (typeof window !== 'undefined' && localStorage.getItem('cart')) {
-    const storedState = JSON.parse(localStorage.getItem('cart') as string);
+  if (typeof window !== "undefined" && localStorage.getItem("cart")) {
+    const storedState = JSON.parse(localStorage.getItem("cart") as string);
     return {
       ...storedState,
       isCartDrawerOpen: false, // always reset drawer state on load
@@ -61,19 +58,19 @@ const initialState: CartState = (() => {
 
   return {
     cartItems: [],
-    shippingAddress: { address: '', city: '', postalCode: '', country: '' },
-    paymentMethod: 'Mercado Pago',
-    itemsPrice: '0.00',
-    shippingPrice: '0.00',
-    taxPrice: '0.00',
-    totalPrice: '0.00',
+    shippingAddress: { address: "", city: "", postalCode: "", country: "" },
+    paymentMethod: "Mercado Pago",
+    itemsPrice: "0.00",
+    shippingPrice: "0.00",
+    taxPrice: "0.00",
+    totalPrice: "0.00",
     isCartDrawerOpen: false,
   };
 })();
 
 // --- Slice ---
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
     addToCart: (state, action: PayloadAction<CartItem>) => {
@@ -119,7 +116,7 @@ const cartSlice = createSlice({
     closeCartDrawer: (state) => {
       state.isCartDrawerOpen = false;
       return state;
-    }
+    },
   },
 });
 
@@ -131,7 +128,7 @@ export const {
   savePaymentMethod,
   clearCartItems,
   openCartDrawer,
-  closeCartDrawer
+  closeCartDrawer,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
