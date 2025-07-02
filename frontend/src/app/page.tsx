@@ -5,7 +5,7 @@ import Features from "@/components/Features";
 import CTA from "@/components/CTA";
 
 // Dynamically import components with SSR disabled for client-only features
-const Hero = dynamic(() => import("@/components/HeroV2"), { ssr: false });
+const Hero = dynamic(() => import("@/components/Hero"), { ssr: false });
 const FeaturedProducts = dynamic(
   () => import("@/components/FeaturedProducts"),
   { ssr: false }

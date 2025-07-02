@@ -71,16 +71,8 @@ export default function CobrosPage() {
   // 2. Crear la orden cuando se presione el botón de continuar
   const handlePlaceOrder = async () => {
     setError("");
-    if (
-      isGuest &&
-      (!name ||
-        !email ||
-        !address.street ||
-        !address.city ||
-        !address.state ||
-        !address.zipCode)
-    ) {
-      setError("Por favor, completa todos los campos requeridos.");
+    if (isGuest && (!name || !email)) {
+      setError("Por favor, completa nombre y correo electrónico.");
       return;
     }
     if (cartItems.length === 0) {
@@ -101,7 +93,7 @@ export default function CobrosPage() {
     try {
       // Unificar nombres de campos
       console.log("Enviando orden:", {
-        cartItems,
+        items: cartItems,
         total: calculateSubtotal(),
         guest_name: isGuest ? name : undefined,
         guest_email: isGuest ? email : undefined,
@@ -112,7 +104,7 @@ export default function CobrosPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cartItems,
+          items: cartItems,
           total: calculateSubtotal(),
           guest_name: isGuest ? name : undefined,
           guest_email: isGuest ? email : undefined,
@@ -134,18 +126,20 @@ export default function CobrosPage() {
   // 3. Crear la preferencia cuando ya tengas orderId
   useEffect(() => {
     if (!orderId) return;
-    console.log("Creando preferencia con orderId:", orderId);
+    // Enviar datos correctos a create-preference
+    const payload = {
+      cartItems,
+      userName: isGuest ? name : user?.name,
+      userEmail: isGuest ? email : user?.email,
+      orderId,
+      guestToken: isGuest ? guestToken : undefined,
+      shipping_price: 0, // O el valor real si tienes envío
+    };
+    console.log("Payload para create-preference:", payload);
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-preference`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        cartItems,
-        guest_name: isGuest ? name : undefined,
-        guest_email: isGuest ? email : undefined,
-        guest_address: isGuest ? address : undefined,
-        guestToken: isGuest ? guestToken : undefined,
-        orderId,
-      }),
+      body: JSON.stringify(payload),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -155,7 +149,7 @@ export default function CobrosPage() {
       .catch((err) => {
         console.error("Error al crear preferencia:", err);
       });
-  }, [orderId, cartItems, isGuest, name, email, address, guestToken]);
+  }, [orderId, cartItems, isGuest, name, email, guestToken, user]);
 
   // 4. Renderizar el Payment Brick cuando tengas preferenceId
   useEffect(() => {
@@ -221,19 +215,24 @@ export default function CobrosPage() {
                     return response.json();
                   })
                   .then((response) => {
-                    // Limpiar carrito y guardar orden tras pago exitoso
-                    dispatch(clearCartItems());
-                    sessionStorage.setItem(
-                      "order",
-                      JSON.stringify({
-                        orderId,
-                        preferenceId,
-                        paymentResult: response,
-                      })
-                    );
-                    setSuccess(true);
-                    console.log("Pago exitoso:", response);
-                    resolve(response);
+                    // Limpiar carrito solo si el pago fue exitoso
+                    if (response && !response.error) {
+                      dispatch(clearCartItems());
+                      sessionStorage.setItem(
+                        "order",
+                        JSON.stringify({
+                          orderId,
+                          preferenceId,
+                          paymentResult: response,
+                        })
+                      );
+                      setSuccess(true);
+                      console.log("Pago exitoso:", response);
+                    } else {
+                      setError(response?.error || "Error al procesar el pago");
+                      console.error("Error en pago:", response);
+                    }
+                    return response;
                   })
                   .catch((error) => {
                     console.error("Error en /process_payment:", error);
@@ -307,40 +306,6 @@ export default function CobrosPage() {
               placeholder="Correo electrónico"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mb-2 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Calle"
-              value={address.street}
-              onChange={(e) =>
-                setAddress({ ...address, street: e.target.value })
-              }
-              className="w-full mb-2 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Ciudad"
-              value={address.city}
-              onChange={(e) => setAddress({ ...address, city: e.target.value })}
-              className="w-full mb-2 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Estado"
-              value={address.state}
-              onChange={(e) =>
-                setAddress({ ...address, state: e.target.value })
-              }
-              className="w-full mb-2 p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Código postal"
-              value={address.zipCode}
-              onChange={(e) =>
-                setAddress({ ...address, zipCode: e.target.value })
-              }
               className="w-full mb-2 p-2 border rounded"
             />
           </form>

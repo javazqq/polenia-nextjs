@@ -20,6 +20,8 @@ import {
   Package,
 } from "lucide-react";
 import CartDrawer from "./CartDrawer";
+import poleniaLogo from "/public/images/polenia-logo.png";
+import Image from "next/image";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,8 +36,6 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const [logoutApi, { isLoading: isLogoutLoading }] = useLogoutMutation();
-
-  
 
   useEffect(() => {
     setIsClient(true);
@@ -109,12 +109,12 @@ export default function Navbar() {
 
   const prevTotalItems = useRef(totalItems);
 
-useEffect(() => {
-  if (totalItems > prevTotalItems.current && !visible) {
-    setVisible(true);
-  }
-  prevTotalItems.current = totalItems;
-}, [totalItems, visible]);
+  useEffect(() => {
+    if (totalItems > prevTotalItems.current && !visible) {
+      setVisible(true);
+    }
+    prevTotalItems.current = totalItems;
+  }, [totalItems, visible]);
 
   return (
     <>
@@ -146,10 +146,13 @@ useEffect(() => {
             href="/"
             className="flex items-center space-x-2 transition-transform duration-200 hover:scale-105 active:scale-95"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-[#6153E0] to-[#FF6E98] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">P</span>
-            </div>
-            <span className="text-xl font-bold text-[#6153E0]">Polenia</span>
+            <Image
+              src={poleniaLogo}
+              alt="Polenia Logo"
+              width={120}
+              height={30}
+              priority
+            />
           </Link>
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">

@@ -5,7 +5,16 @@ import Link from "next/link";
 import { memo, useEffect, useState } from "react";
 import { Product } from "@/types/product";
 import { fetchProducts } from "@/lib/api/products";
-import { ArrowRight, ShoppingCart, Star, Heart } from "lucide-react";
+import {
+  ArrowRight,
+  ShoppingCart,
+  Star,
+  Heart,
+  Search,
+  ChevronDown,
+  LayoutGrid,
+  List,
+} from "lucide-react";
 
 const ProductCard = memo(function ProductCard({
   product,
@@ -17,10 +26,20 @@ const ProductCard = memo(function ProductCard({
   const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
-    <div className="group h-full bg-[#FFFBF4]/90 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-[#DDC7FF]/30 group-hover:border-[#FF6E98]/50 flex flex-col opacity-0 animate-fade-in-down [animation-delay:600ms]">
-      <Link href={`/products/${product.id}`} className="flex flex-1 flex-col">
+    <div className="group relative h-full flex flex-col opacity-0 animate-fade-in-down p-4 [animation-delay:600ms] transition-all duration-300 rounded-3xl hover:shadow-2xl hover:shadow-[#6153E0]/20 hover:-translate-y-1">
+      {/* Gradient Overlay for Hover */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#6153E0]/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl pointer-events-none"></div>
+
+      {/* Animated Borders: Gradient fade, expand from center */}
+      <div className="absolute top-0 left-0 h-full w-px bg-gradient-to-b from-transparent via-[#DDC7FF] to-transparent scale-y-0 group-hover:scale-y-100 transition-transform duration-500 ease-in-out origin-center opacity-0 group-hover:opacity-100"></div>
+      <div className="absolute top-0 right-0 h-full w-px bg-gradient-to-b from-transparent via-[#DDC7FF] to-transparent scale-y-0 group-hover:scale-y-100 transition-transform duration-500 ease-in-out origin-center opacity-0 group-hover:opacity-100"></div>
+
+      <Link
+        href={`/products/${product.id}`}
+        className="relative z-10 flex flex-1 flex-col"
+      >
         {/* Image Container - Reserved Space */}
-        <div className="relative h-64 overflow-hidden bg-gradient-to-br from-[#DDC7FF]/30 to-[#FF6E98]/20">
+        <div className="relative h-64 overflow-hidden bg-gradient-to-br from-[#DDC7FF]/30 to-[#FF6E98]/20 rounded-2xl">
           {/* Loading Skeleton for individual image */}
           {!imageLoaded && (
             <div className="absolute inset-0 bg-gradient-to-br from-[#DDC7FF]/20 to-[#FF6E98]/10 animate-pulse">
@@ -74,7 +93,7 @@ const ProductCard = memo(function ProductCard({
         </div>
 
         {/* Content */}
-        <div className="p-6 flex-1 flex flex-col">
+        <div className="pt-6 flex-1 flex flex-col">
           {/* Product stats */}
           <div className="flex justify-between items-center text-xs text-[#6153E0]/60 mb-3">
             <span className="flex items-center gap-1">
@@ -125,7 +144,7 @@ const ProductCard = memo(function ProductCard({
       </Link>
 
       {/* Price and CTA */}
-      <div className="px-6 pb-6">
+      <div className="pt-4">
         <div className="flex justify-between items-center">
           <div>
             <span className="text-2xl font-bold text-[#6153E0]">
@@ -170,100 +189,119 @@ export default function ProductsPage() {
   //     : products.filter((p) => p.category === selectedCategory);
 
   return (
-    <main className="w-full min-h-screen bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#FF6E98]/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#FF991F]/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-[#DDC7FF]/30 rounded-full blur-3xl"></div>
-      </div>
+    <main className="w-full min-h-screen bg-[#F8F4FF] relative overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-[#E2DFFF] via-white to-[#FFE6F0] text-[#3A3185] py-20 md:py-28 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-repeat opacity-10"></div>
+        <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#6153E0]/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-[#FF6E98]/20 rounded-full blur-3xl"></div>
 
-      <div className="relative z-10 px-6 md:px-16 py-20">
-        {/* Header Section */}
-        <div className="text-center mb-16 max-w-4xl mx-auto opacity-0 animate-fade-in-down">
-          {/* <span className="inline-block px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] rounded-full text-sm font-semibold mb-6 border border-[#DDC7FF]/50 opacity-0 animate-fade-in-down [animation-delay:100ms]">
-            ✨ Premium Collection
-          </span> */}
-          <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] via-[#FF6E98] to-[#6153E0] mb-6 opacity-0 animate-fade-in-down [animation-delay:200ms] leading-tight pb-2">
-            Ginger Beer
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+            Our Handcrafted Ginger Beers
           </h1>
-          <p className="text-lg md:text-xl text-[#6153E0]/80 max-w-2xl mx-auto leading-relaxed opacity-0 animate-fade-in-down [animation-delay:300ms]">
-            Discover our complete range of handcrafted ginger beers, each bottle
-            a testament to quality and tradition
+          <p className="text-lg md:text-xl text-[#3A3185]/80 max-w-2xl mx-auto">
+            Explore a world of flavor, brewed with passion and the finest
+            natural ingredients.
           </p>
         </div>
+        {/* Section Transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#F8F4FF] to-transparent"></div>
+      </section>
 
-        {/* Category Pills
-        <div className="flex gap-4 justify-center mb-12 overflow-x-auto pb-2 opacity-0 animate-fade-in-down [animation-delay:400ms]">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
-                selectedCategory === category
-                  ? "bg-[#6153E0] text-white shadow-lg shadow-[#6153E0]/25"
-                  : "bg-white/70 backdrop-blur-sm text-[#6153E0] hover:bg-white hover:shadow-md border border-[#DDC7FF]/40"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div> */}
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-[#FFFBF4]/60 rounded-3xl overflow-hidden animate-pulse"
-              >
-                <div className="h-64 bg-[#DDC7FF]/30"></div>
-                <div className="p-6 space-y-3">
-                  <div className="h-6 bg-[#DDC7FF]/30 rounded w-3/4"></div>
-                  <div className="h-4 bg-[#DDC7FF]/20 rounded w-full"></div>
-                  <div className="h-4 bg-[#DDC7FF]/20 rounded w-2/3"></div>
-                  <div className="flex gap-2 mt-4">
-                    <div className="h-6 bg-[#DDC7FF]/20 rounded-full w-16"></div>
-                    <div className="h-6 bg-[#DDC7FF]/20 rounded-full w-16"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
+      {/* Main Content */}
+      <div className="relative z-10 px-6 md:px-16 py-12 -mt-16">
+        {/* Filter and Sort Bar */}
+        {/* <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg p-4 mb-12 max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 border border-white/50">
+          <div className="relative w-full md:w-auto md:flex-1">
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6153E0]/50"
+              size={20}
+            />
+            <input
+              type="text"
+              placeholder="Search for a flavor..."
+              className="bg-white/50 border border-transparent focus:bg-white focus:border-[#DDC7FF] rounded-xl w-full pl-12 pr-4 py-3 text-[#6153E0] placeholder:text-[#6153E0]/50 transition-all duration-300 outline-none"
+            />
           </div>
-        )}
-
-        {/* Error State */}
-        {isError && (
-          <div className="text-center py-20 opacity-0 animate-fade-in-down">
-            <div className="bg-[#FF6E98]/10 border border-[#FF6E98]/30 rounded-2xl p-8 max-w-md mx-auto backdrop-blur-sm">
-              <p className="text-[#FF6E98] font-semibold mb-2">
-                Oops! Something went wrong
-              </p>
-              <p className="text-[#6153E0]/70 text-sm">
-                Failed to load products. Please try again later.
-              </p>
+          <div className="flex gap-2 w-full md:w-auto">
+            <div className="flex-1">
+              <button className="w-full bg-white/80 border border-[#DDC7FF]/50 rounded-xl px-4 py-3 flex items-center justify-between text-[#6153E0] font-medium hover:bg-white transition-all">
+                <span>Sort By</span>
+                <ChevronDown size={18} />
+              </button>
+            </div>
+            <div className="flex-1">
+              <button className="w-full bg-white/80 border border-[#DDC7FF]/50 rounded-xl px-4 py-3 flex items-center justify-between text-[#6153E0] font-medium hover:bg-white transition-all">
+                <span>Category</span>
+                <ChevronDown size={18} />
+              </button>
+            </div>
+            <div className="hidden md:flex gap-1 bg-[#F8F4FF] p-1 rounded-xl border border-[#DDC7FF]/50">
+              <button className="p-2 rounded-lg bg-white text-[#6153E0] shadow-sm">
+                <LayoutGrid size={20} />
+              </button>
+              <button className="p-2 rounded-lg text-[#6153E0]/60 hover:bg-white/50">
+                <List size={20} />
+              </button>
             </div>
           </div>
-        )}
+        </div> */}
 
         {/* Products Grid */}
-        {!isLoading && !isError && (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto opacity-0 animate-fade-in-down [animation-delay:500ms]">
-            {products.map((product: Product, index: number) => (
-              <ProductCard key={product.id} product={product} index={index} />
-            ))}
-          </div>
-        )}
+        <div className="max-w-7xl mx-auto">
+          {isLoading && (
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[...Array(8)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white/80 rounded-3xl overflow-hidden animate-pulse"
+                >
+                  <div className="h-64 bg-[#DDC7FF]/30"></div>
+                  <div className="p-6 space-y-3">
+                    <div className="h-6 bg-[#DDC7FF]/30 rounded w-3/4"></div>
+                    <div className="h-4 bg-[#DDC7FF]/20 rounded w-full"></div>
+                    <div className="h-4 bg-[#DDC7FF]/20 rounded w-2/3"></div>
+                    <div className="flex gap-2 mt-4">
+                      <div className="h-6 bg-[#DDC7FF]/20 rounded-full w-16"></div>
+                      <div className="h-6 bg-[#DDC7FF]/20 rounded-full w-16"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-        {/* Results Summary */}
-        {!isLoading && !isError && (
-          <div className="text-center mt-16 opacity-0 animate-fade-in-down [animation-delay:700ms]">
-            <p className="text-[#6153E0]/60 text-sm">
-              Showing {products.length} products • Handcrafted with love
-            </p>
-          </div>
-        )}
+          {isError && (
+            <div className="text-center py-20">
+              <div className="bg-white/80 border border-[#FF6E98]/30 rounded-2xl p-8 max-w-md mx-auto backdrop-blur-sm">
+                <p className="text-[#FF6E98] font-semibold mb-2">
+                  Oops! Something went wrong
+                </p>
+                <p className="text-[#6153E0]/70 text-sm">
+                  Failed to load products. Please try again later.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!isLoading && !isError && (
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {products.map((product: Product, index: number) => (
+                <ProductCard key={product.id} product={product} index={index} />
+              ))}
+            </div>
+          )}
+
+          {/* Results Summary */}
+          {!isLoading && !isError && (
+            <div className="text-center mt-16">
+              <p className="text-[#6153E0]/60 text-sm">
+                Showing {products.length} products • Handcrafted with love
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

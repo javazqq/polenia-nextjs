@@ -7,6 +7,7 @@ module.exports = {
     extend: {
       animation: {
         'gradient-x': 'gradient-x 10s ease-in-out infinite',
+        'fade-in-down': 'fade-in-down 0.8s ease-out forwards',
       },
       keyframes: {
         'gradient-x': {
@@ -15,6 +16,16 @@ module.exports = {
           },
           '100%': {
             'background-position': '100% 50%',
+          },
+        },
+        'fade-in-down': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(-20px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)',
           },
         },
       },

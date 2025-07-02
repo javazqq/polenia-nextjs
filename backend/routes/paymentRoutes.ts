@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { createPreference } from "../controllers/paymentController";
+import { createPreference, processPayment } from "../controllers/paymentController";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { validateMPWebhookSignature } from "../utils/webhookValidation";
 import { protectOptional } from "../middleware/authMiddleware";
@@ -16,7 +16,7 @@ const payment = new Payment(client);
 
 router.post("/create-preference", protectOptional, createPreference);
 
-// router.post('/process_payment', processPayment);
+router.post('/process_payment', processPayment);
 
 router.post("/webhook", async (req: Request, res: Response) => {
   const secret = process.env.MP_WEBHOOK_SECRET!;

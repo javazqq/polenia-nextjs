@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, memo } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -17,32 +17,8 @@ import {
   Truck,
 } from "lucide-react";
 import CartDrawer from "@/components/CartDrawer";
-
-// Memoized TrustIndicators component
-const TrustIndicators = memo(function TrustIndicators() {
-  return (
-    <div className="grid grid-cols-3 gap-4 pt-6 opacity-0 animate-fade-in-down [animation-delay:800ms]">
-      <div className="text-center">
-        <div className="w-12 h-12 bg-[#D6E012]/20 rounded-full flex items-center justify-center mx-auto mb-2 border border-[#D6E012]/30">
-          <Shield size={20} className="text-[#6153E0]" />
-        </div>
-        <p className="text-xs text-[#6153E0]/70">Quality Guaranteed</p>
-      </div>
-      <div className="text-center">
-        <div className="w-12 h-12 bg-[#DDC7FF]/30 rounded-full flex items-center justify-center mx-auto mb-2 border border-[#DDC7FF]/50">
-          <Truck size={20} className="text-[#6153E0]" />
-        </div>
-        <p className="text-xs text-[#6153E0]/70">Free Shipping</p>
-      </div>
-      <div className="text-center">
-        <div className="w-12 h-12 bg-[#FF6E98]/20 rounded-full flex items-center justify-center mx-auto mb-2 border border-[#FF6E98]/30">
-          <Heart size={20} className="text-[#6153E0]" />
-        </div>
-        <p className="text-xs text-[#6153E0]/70">Made with Love</p>
-      </div>
-    </div>
-  );
-});
+import Counter from "@/components/CounterComponent";
+import TrustIndicators from "@/components/TrustIndicators";
 
 export default function ProductPage() {
   const [product, setProduct] = useState<Product>();
@@ -173,165 +149,178 @@ export default function ProductPage() {
 
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] relative overflow-hidden">
+      <main className="min-h-screen bg-[#F8F4FF] relative overflow-hidden pt-20">
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#FF6E98]/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#FF991F]/20 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-[#DDC7FF]/30 rounded-full blur-3xl"></div>
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#DDC7FF]/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#FF991F]/10 rounded-full blur-3xl animate-pulse [animation-delay:500ms]"></div>
         </div>
 
-        <div className="relative z-10 px-6 md:px-16 py-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-16 py-12">
           {/* Back Button */}
           <button
             onClick={() => router.back()}
-            className="flex items-center space-x-2 text-[#6153E0] hover:text-[#FF6E98] mb-8 group opacity-0 animate-fade-in-down"
+            className="flex items-center space-x-2 text-[#6153E0]/80 hover:text-[#FF6E98] mb-8 group transition-colors duration-300"
           >
             <ArrowLeft
-              size={20}
+              size={18}
               className="group-hover:-translate-x-1 transition-transform duration-300"
             />
             <span className="font-semibold">Back to Products</span>
           </button>
 
-          <div className="max-w-7xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-16 items-start opacity-0 animate-fade-in-down [animation-delay:100ms]">
-              {/* Image Section */}
-              <div className="space-y-6">
-                <div className="relative h-[500px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#DDC7FF]/30 to-[#FF6E98]/20 shadow-2xl border border-white/50">
-                  {/* Skeleton - only show if image not loaded */}
-                  {!imageLoaded && (
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#DDC7FF]/20 to-[#FF6E98]/10 animate-pulse">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 h-16 border-4 border-[#DDC7FF]/30 border-t-[#6153E0] rounded-full animate-spin opacity-50"></div>
-                      </div>
-                    </div>
-                  )}
-
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className={`object-cover transition-all duration-700 hover:scale-105 ${
-                      imageLoaded ? "opacity-100" : "opacity-0"
-                    }`}
-                    priority
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    onLoad={() => setImageLoaded(true)}
-                  />
-
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#6153E0]/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 z-20" />
-
-                  {/* Floating elements */}
-                  <div className="absolute top-6 right-6 z-30">
-                    <button className="bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-lg hover:bg-white transition-colors">
-                      <Heart
-                        size={20}
-                        className="text-[#6153E0] hover:text-[#FF6E98] transition-colors"
-                      />
-                    </button>
+          <div className="grid lg:grid-cols-2 gap-12 xl:gap-16 items-start">
+            {/* Image Section */}
+            <div className="space-y-4 sticky top-28 opacity-0 animate-fade-in-down [animation-delay:200ms]">
+              <div className="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl shadow-[#6153E0]/20">
+                {/* Skeleton - only show if image not loaded */}
+                {!imageLoaded && (
+                  <div className="absolute inset-0 bg-white/30 animate-pulse flex items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-[#DDC7FF]/50 border-t-[#6153E0] rounded-full animate-spin"></div>
                   </div>
+                )}
+
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className={`object-cover transition-all duration-700 hover:scale-105 ${
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
+                  priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  onLoad={() => setImageLoaded(true)}
+                />
+
+                {/* Floating elements */}
+                <div className="absolute top-5 right-5 z-10">
+                  <button className="bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-md hover:bg-white transition-colors">
+                    <Heart
+                      size={20}
+                      className="text-[#6153E0] hover:text-[#FF6E98] transition-colors"
+                    />
+                  </button>
                 </div>
               </div>
+              {/* Thumbnail Gallery (Optional) - can be added here */}
+            </div>
 
-              {/* Product Info Section */}
-              <div className="space-y-8 opacity-0 animate-fade-in-down [animation-delay:200ms]">
-                {/* Badge */}
-                <span className="inline-block px-4 py-2 bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] rounded-full text-sm font-semibold border border-[#DDC7FF]/50 opacity-0 animate-fade-in-down [animation-delay:300ms]">
-                  ✨ Premium Quality
+            {/* Product Info Section */}
+            <div className="space-y-6 opacity-0 animate-fade-in-down [animation-delay:400ms]">
+              {/* Badge */}
+              <span className="inline-block px-4 py-1.5 bg-[#D6E012]/20 text-[#6153E0] rounded-full text-sm font-semibold border border-[#D6E012]/30 opacity-0 animate-fade-in-down [animation-delay:500ms]">
+                ✨ Premium Quality
+              </span>
+              {/* Title */}
+              <div className="opacity-0 animate-fade-in-down [animation-delay:600ms]">
+                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] to-[#3A3185] mb-3 leading-tight">
+                  {product.name}
+                </h1>
+                {/* Rating - can be added here */}
+              </div>
+              {/* Description */}
+              <p className="text-lg text-[#6153E0]/80 leading-relaxed opacity-0 animate-fade-in-down [animation-delay:700ms]">
+                {product.description}
+              </p>
+              {/* Features */}
+              <div className="flex flex-wrap gap-3 pt-2 opacity-0 animate-fade-in-down [animation-delay:800ms]">
+                <span className="px-3 py-1.5 bg-white/80 text-[#6153E0] rounded-full text-sm font-medium border border-[#DDC7FF]/50">
+                  Natural Ingredients
                 </span>
-                {/* Title and Rating */}
-                <div>
-                  <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] via-[#FF6E98] to-[#6153E0] mb-4 leading-tight opacity-0 animate-fade-in-down [animation-delay:400ms]">
-                    {product.name}
-                  </h1>
-                </div>
-                {/* Description */}
-                <p className="text-lg text-[#6153E0]/80 leading-relaxed opacity-0 animate-fade-in-down [animation-delay:500ms]">
-                  {product.description}
-                </p>
-                {/* Features */}
-                <div className="flex flex-wrap gap-3 opacity-0 animate-fade-in-down [animation-delay:600ms]">
-                  <span className="px-3 py-1 bg-[#D6E012]/20 text-[#6153E0] rounded-full text-sm font-semibold border border-[#D6E012]/30">
-                    Natural Ingredients
-                  </span>
-                  <span className="px-3 py-1 bg-[#DDC7FF]/30 text-[#6153E0] rounded-full text-sm font-semibold border border-[#DDC7FF]/50">
-                    Organic Certified
-                  </span>
-                  <span className="px-3 py-1 bg-[#FF6E98]/20 text-[#6153E0] rounded-full text-sm font-semibold border border-[#FF6E98]/30">
-                    Handcrafted
-                  </span>
-                </div>
-                {/* Price and Stock */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-[#DDC7FF]/30 opacity-0 animate-fade-in-down [animation-delay:700ms]">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <span className="text-3xl font-bold text-[#6153E0]">
-                        ${product.price.toFixed(2)}
-                      </span>
-                      <span className="text-sm text-[#6153E0]/60 ml-2">
-                        per bottle
-                      </span>
-                    </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        product.countInStock > 0
-                          ? "bg-[#D6E012]/20 text-[#6153E0] border border-[#D6E012]/30"
-                          : "bg-[#FF6E98]/20 text-[#6153E0] border border-[#FF6E98]/30"
-                      }`}
-                    >
-                      {product.countInStock > 0
-                        ? `${product.countInStock} in stock`
-                        : "Out of Stock"}
+                <span className="px-3 py-1.5 bg-white/80 text-[#6153E0] rounded-full text-sm font-medium border border-[#DDC7FF]/50">
+                  Organic Certified
+                </span>
+                <span className="px-3 py-1.5 bg-white/80 text-[#6153E0] rounded-full text-sm font-medium border border-[#DDC7FF]/50">
+                  Handcrafted
+                </span>
+              </div>
+              {/* Price and Stock */}
+              <div className="!my-8 bg-gradient-to-r from-[#6153E0]/5 to-[#FF6E98]/5 rounded-2xl p-6 border border-white opacity-0 animate-fade-in-down [animation-delay:900ms]">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <span className="text-4xl font-bold text-[#6153E0]">
+                      ${product.price.toFixed(2)}
+                    </span>
+                    <span className="text-sm text-[#6153E0]/60 ml-2">
+                      per bottle
                     </span>
                   </div>
-                  {/* Quantity and Add to Cart */}
-                  {product.countInStock > 0 && (
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-4">
-                        <span className="text-sm font-semibold text-[#6153E0]">
-                          Quantity:
-                        </span>
-                        <div className="flex items-center bg-white border border-[#DDC7FF]/50 rounded-xl overflow-hidden">
-                          <button
-                            onClick={() =>
-                              setQuantity((q) => Math.max(1, q - 1))
-                            }
-                            className="px-4 py-2 text-[#6153E0] hover:bg-[#DDC7FF]/20 disabled:opacity-50 transition-colors"
-                            disabled={quantity <= 1}
-                          >
-                            −
-                          </button>
-                          <span className="px-4 py-2 text-[#6153E0] font-semibold border-x border-[#DDC7FF]/50">
-                            {quantity}
-                          </span>
-                          <button
-                            onClick={() =>
-                              setQuantity((q) =>
-                                Math.min(product.countInStock, q + 1)
-                              )
-                            }
-                            className="px-4 py-2 text-[#6153E0] hover:bg-[#DDC7FF]/20 disabled:opacity-50 transition-colors"
-                            disabled={quantity >= product.countInStock}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      product.countInStock > 0
+                        ? "bg-[#D6E012]/20 text-[#6153E0] border border-[#D6E012]/30"
+                        : "bg-[#FF6E98]/20 text-[#6153E0] border border-[#FF6E98]/30"
+                    }`}
+                  >
+                    {product.countInStock > 0
+                      ? `${product.countInStock} in stock`
+                      : "Out of Stock"}
+                  </span>
+                </div>
+                {/* Quantity and Add to Cart */}
+                {product.countInStock > 0 && (
+                  <div className="grid md:grid-cols-2 gap-4 items-center">
+                    <div className="bg-white/80 rounded-xl border border-[#DDC7FF]/50 flex items-center justify-between p-2">
                       <button
-                        onClick={handleAddToCart}
-                        className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white font-bold py-4 px-8 rounded-2xl hover:from-[#FF6E98] hover:to-[#FF991F] transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                        className="w-10 h-10 text-2xl text-[#6153E0] hover:bg-[#DDC7FF]/40 disabled:opacity-50 transition-colors rounded-lg"
+                        disabled={quantity <= 1}
                       >
-                        <ShoppingCart size={20} />
-                        <span>Add to Cart</span>
+                        −
+                      </button>
+                      <Counter
+                        value={quantity}
+                        fontSize={28}
+                        padding={0}
+                        places={[100, 10, 1]}
+                        textColor="#6153E0"
+                        fontWeight={600}
+                        containerStyle={{
+                          background: "none",
+                          boxShadow: "none",
+                          border: "none",
+                          padding: 0,
+                          minWidth: 0,
+                        }}
+                        counterStyle={{
+                          background: "none",
+                          boxShadow: "none",
+                          border: "none",
+                          padding: 0,
+                          minWidth: 0,
+                          gap: 0,
+                        }}
+                        digitStyle={{
+                          minWidth: 20,
+                          textAlign: "center",
+                          background: "none",
+                        }}
+                        gradientHeight={0}
+                      />
+                      <button
+                        onClick={() =>
+                          setQuantity((q) =>
+                            Math.min(product.countInStock, q + 1)
+                          )
+                        }
+                        className="w-10 h-10 text-2xl text-[#6153E0] hover:bg-[#DDC7FF]/40 disabled:opacity-50 transition-colors rounded-lg"
+                        disabled={quantity >= product.countInStock}
+                      >
+                        +
                       </button>
                     </div>
-                  )}
-                </div>
-                {/* Trust Indicators */}
-                <TrustIndicators />
+                    <button
+                      onClick={handleAddToCart}
+                      className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white font-bold py-4 px-6 rounded-xl hover:from-[#FF6E98] hover:to-[#FF991F] transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3 transform hover:-translate-y-1"
+                    >
+                      <ShoppingCart size={20} />
+                      <span>Add to Cart</span>
+                    </button>
+                  </div>
+                )}
               </div>
+              {/* Trust Indicators */}
+              <TrustIndicators />
             </div>
           </div>
         </div>

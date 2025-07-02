@@ -78,22 +78,22 @@ export const createPreference = async (req: Request, res: Response) => {
   }
 };
 
-// export const processPayment = async (req: Request, res: Response) => {
-//   try {
-//     if (req.body.orderId) {
-//       req.body.external_reference = req.body.orderId;
-//       delete req.body.orderId;
-//     }
-//     const idempotencyKey = uuidv4();
-//     const result = await payment.create({
-//   body: req.body,
-//   requestOptions: {
-//     idempotencyKey: idempotencyKey,
-//   },
-// });
-//     res.status(200).json(result);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'Error al procesar el pago' });
-//   }
-// };
+export const processPayment = async (req: Request, res: Response) => {
+  try {
+    if (req.body.orderId) {
+      req.body.external_reference = req.body.orderId;
+      delete req.body.orderId;
+    }
+    const idempotencyKey = uuidv4();
+    const result = await payment.create({
+  body: req.body,
+  requestOptions: {
+    idempotencyKey: idempotencyKey,
+  },
+});
+    res.status(200).json(result);
+  } catch (error: any) {
+  console.error('Error al procesar el pago:', error?.message, error?.response?.data || error);
+  res.status(500).json({ error: error?.message || 'Error al procesar el pago', details: error?.response?.data });
+}
+};
