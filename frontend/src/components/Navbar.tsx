@@ -97,7 +97,7 @@ export default function Navbar() {
     { href: "/about", label: "About", icon: Info },
     { href: "#footer", label: "Contact", icon: Mail, scroll: true },
     { href: "/faq", label: "FAQ", icon: MessageCircleQuestion },
-    { href: "/products", label: "Ginger Beer", icon: Package },
+    { href: "/products", label: "Shop", icon: Package },
     {
       href: "/cart",
       label: "Cart",

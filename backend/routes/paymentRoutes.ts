@@ -140,8 +140,8 @@ router.post("/webhook", async (req: Request, res: Response) => {
           );
 
           // Mapear campos y agregar defaults
-          packages = packages.map((p) => ({
-            package_number: p.package_number || "1",
+          packages = packages.map((p, index) => ({
+            package_number: p.package_number || (index + 1),
             package_protected: p.package_protected ?? true,
             declared_value: p.declared_value || 2500,
             consignment_note: p.consignment_note || "50202300",

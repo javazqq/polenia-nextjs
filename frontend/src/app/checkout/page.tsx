@@ -7,7 +7,19 @@ import { useState } from "react";
 import { clearCartItems } from "@/slices/cartSlice";
 import { setCredentials } from "@/slices/authSlice";
 import Image from "next/image";
-import { Check, Lock } from "lucide-react";
+import {
+  Check,
+  Lock,
+  ShoppingCart,
+  User,
+  Truck,
+  Package,
+  Info,
+  AlertTriangle,
+  ShieldCheck,
+  Tag,
+} from "lucide-react";
+import GlassCard from "@/components/GlassCard";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -129,13 +141,13 @@ export default function CheckoutPage() {
         console.log("Processing item:", item.name, "parcel:", item.parcel);
         // Solo usar quantity, no multiplicar por packageNumber
         for (let i = 0; i < item.quantity; i++) {
+          const package_number = parcelsForShipping.length + 1; // Unique and sequential
           if (item.parcel) {
             const {
               length,
               width,
               height,
               weight,
-              packageNumber,
               consignmentNote,
               packageType,
               packageProtected,
@@ -146,7 +158,6 @@ export default function CheckoutPage() {
               width,
               height,
               weight,
-              packageNumber,
               consignmentNote,
               packageType,
               packageProtected,
@@ -157,7 +168,7 @@ export default function CheckoutPage() {
               width,
               height,
               weight,
-              package_number: 1, // Cada objeto representa un paquete individual
+              package_number,
               package_protected: packageProtected ?? true,
               declared_value: declaredValue || 2500,
               consignment_note: consignmentNote || "50202300", // Como string
@@ -170,7 +181,7 @@ export default function CheckoutPage() {
               width: 10,
               height: 10,
               weight: 1,
-              package_number: 1,
+              package_number,
               package_protected: true,
               declared_value: 2500,
               consignment_note: "50202300", // Como string
@@ -481,386 +492,427 @@ export default function CheckoutPage() {
           ) : (
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Order Summary */}
-              <section className="bg-[#FFFBF4]/90 backdrop-blur-sm rounded-3xl p-8 border border-[#DDC7FF]/30 transition-all duration-300">
-                <h2 className="text-2xl font-bold mb-6 text-[#6153E0] flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-[#6153E0] to-[#FF6E98] rounded-full flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">📋</span>
+              <GlassCard>
+                <div className="p-8">
+                  <h2 className="text-2xl font-bold mb-6 text-[#6153E0] flex items-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-[#6153E0] to-[#FF6E98] rounded-full flex items-center justify-center mr-3">
+                      <ShoppingCart className="text-white h-5 w-5" />
+                    </div>
+                    Order Summary
+                  </h2>
+                  <div className="space-y-4 mb-6">
+                    {cartItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-[#DDC7FF]/30 hover:border-[#FF6E98]/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-[#DDC7FF]/30 to-[#FF6E98]/20">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[#6153E0] mb-1">
+                              {item.name}
+                            </p>
+                            <p className="text-sm text-[#6153E0]/70">
+                              {item.quantity} × ${item.price.toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="font-bold text-[#6153E0] text-lg">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                  Order Summary
-                </h2>
-                <div className="space-y-4 mb-6">
-                  {cartItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-[#DDC7FF]/30 hover:border-[#FF6E98]/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-[#DDC7FF]/30 to-[#FF6E98]/20">
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
+
+                  <div className="border-t border-[#DDC7FF]/50 pt-4 space-y-3">
+                    <div className="flex justify-between items-center text-[#6153E0]">
+                      <span className="font-medium">Subtotal</span>
+                      <span className="font-semibold">
+                        ${calculateSubtotal().toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-[#6153E0]">
+                      <span className="font-medium">Items</span>
+                      <span className="font-semibold">
+                        {cartItems.reduce(
+                          (acc, item) => acc + item.quantity,
+                          0
+                        )}
+                      </span>
+                    </div>
+                    {shippingCost !== null && (
+                      <div className="flex justify-between items-center text-[#6153E0]">
+                        <span className="font-medium">Shipping</span>
+                        <span className="font-semibold">
+                          ${shippingCost.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Promo Code */}
+                  <div className="mt-6">
+                    <label className="block text-sm font-semibold text-[#6153E0] mb-2">
+                      Promo Code
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter code"
+                        className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                      />
+                      <button className="bg-gradient-to-r from-[#FF991F] to-[#D6E012] text-white font-semibold px-4 py-2 rounded-xl hover:from-[#D6E012] hover:to-[#FF991F] transition-all duration-300 flex items-center justify-center">
+                        <Tag className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[#DDC7FF]/50 pt-4 mt-6">
+                    <div className="flex justify-between items-center bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white p-4 rounded-2xl transition-all duration-300">
+                      <span className="text-lg font-semibold">Total:</span>
+                      <span className="text-2xl font-bold">
+                        $
+                        {(
+                          calculateSubtotal() +
+                          (shippingCost !== null ? shippingCost : 0)
+                        ).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </GlassCard>
+
+              {/* Guest Information / Checkout Form */}
+              <GlassCard>
+                <div className="p-8">
+                  {isGuest ? (
+                    <>
+                      <h2 className="text-2xl font-bold mb-6 text-[#6153E0] flex items-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#FF6E98] to-[#FF991F] rounded-full flex items-center justify-center mr-3">
+                          <Truck className="text-white h-5 w-5" />
+                        </div>
+                        Shipping
+                      </h2>
+                      <div className="space-y-4 mb-8">
+                        <div>
+                          <label className="block text-sm font-semibold text-[#6153E0] mb-2">
+                            Full Name
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter your full name"
+                            value={address.name}
+                            onChange={(e) =>
+                              setAddress((prev) => ({
+                                ...prev,
+                                name: e.target.value,
+                              }))
+                            }
+                            //setName(e.target.value)}
+                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                            required
                           />
                         </div>
                         <div>
-                          <p className="font-semibold text-[#6153E0] mb-1">
-                            {item.name}
-                          </p>
-                          <p className="text-sm text-[#6153E0]/70">
-                            {item.quantity} × ${item.price.toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="font-bold text-[#6153E0] text-lg">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-t border-[#DDC7FF]/50 pt-4">
-                  {/* Shipping breakdown if quoted */}
-                  {shippingCost !== null && (
-                    <div className="flex justify-between items-center bg-white/80 text-[#6153E0] p-4 rounded-2xl mb-2 border border-[#DDC7FF]/30">
-                      <span className="text-lg font-semibold">Shipping:</span>
-                      <span className="text-lg font-bold">
-                        ${shippingCost.toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white p-4 rounded-2xl transition-all duration-300">
-                    <span className="text-lg font-semibold">Total:</span>
-                    <span className="text-2xl font-bold">
-                      $
-                      {(
-                        calculateSubtotal() +
-                        (shippingCost !== null ? shippingCost : 0)
-                      ).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </section>
-
-              {/* Guest Information / Checkout Form */}
-              <section className="bg-[#FFFBF4]/90 backdrop-blur-sm rounded-3xl p-8 border border-[#DDC7FF]/30 transition-all duration-300">
-                {isGuest ? (
-                  <>
-                    <h2 className="text-2xl font-bold mb-6 text-[#6153E0] flex items-center">
-                      <div className="w-8 h-8 bg-gradient-to-br from-[#FF6E98] to-[#FF991F] rounded-full flex items-center justify-center mr-3">
-                        <span className="text-white text-sm">👤</span>
-                      </div>
-                      Shipping
-                    </h2>
-                    <div className="space-y-4 mb-8">
-                      <div>
-                        <label className="block text-sm font-semibold text-[#6153E0] mb-2">
-                          Full Name
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Enter your full name"
-                          value={address.name}
-                          onChange={(e) =>
-                            setAddress((prev) => ({
-                              ...prev,
-                              name: e.target.value,
-                            }))
-                          }
-                          //setName(e.target.value)}
-                          className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-[#6153E0] mb-2">
-                          Email Address
-                        </label>
-                        <input
-                          type="email"
-                          placeholder="Enter your email address"
-                          value={address.email}
-                          onChange={
-                            (e) =>
+                          <label className="block text-sm font-semibold text-[#6153E0] mb-2">
+                            Email Address
+                          </label>
+                          <input
+                            type="email"
+                            placeholder="Enter your email address"
+                            value={address.email}
+                            onChange={(e) =>
                               setAddress((prev) => ({
                                 ...prev,
                                 email: e.target.value,
                               }))
+                            }
                             // setEmail(e.target.value)
-                          }
-                          className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-[#6153E0] mb-2">
-                          Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          placeholder="Enter your phone number"
-                          value={address.phone}
-                          onChange={
-                            (e) =>
+                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-[#6153E0] mb-2">
+                            Phone Number
+                          </label>
+                          <input
+                            type="tel"
+                            placeholder="Enter your phone number"
+                            value={address.phone}
+                            onChange={(e) =>
                               setAddress((prev) => ({
                                 ...prev,
                                 phone: e.target.value,
                               }))
+                            }
                             // setPhone(e.target.value)
-                          }
-                          className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                          required
-                        />
+                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-[#6153E0] mb-4">
+                            Shipping Address
+                          </label>
+
+                          {/* Street Address */}
+                          <div className="mb-3">
+                            <input
+                              type="text"
+                              placeholder="Street address"
+                              value={address.street1}
+                              onChange={(e) =>
+                                setAddress((prev) => ({
+                                  ...prev,
+                                  street1: e.target.value,
+                                }))
+                              }
+                              className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                              required
+                            />
+                          </div>
+
+                          {/* City and State Row */}
+                          <div className="grid grid-cols-2 gap-3 mb-3">
+                            <input
+                              type="text"
+                              placeholder="City"
+                              value={address.city}
+                              onChange={(e) =>
+                                setAddress((prev) => ({
+                                  ...prev,
+                                  city: e.target.value,
+                                }))
+                              }
+                              className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                              required
+                            />
+                            <input
+                              type="text"
+                              placeholder="State/Province"
+                              value={address.state}
+                              onChange={(e) =>
+                                setAddress((prev) => ({
+                                  ...prev,
+                                  state: e.target.value,
+                                }))
+                              }
+                              className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                              required
+                            />
+                          </div>
+
+                          {/* ZIP and Country Row */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <input
+                              type="text"
+                              placeholder="ZIP/Postal Code"
+                              value={address.zipCode}
+                              onChange={(e) =>
+                                setAddress((prev) => ({
+                                  ...prev,
+                                  zipCode: e.target.value,
+                                }))
+                              }
+                              className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                              required
+                            />
+                          </div>
+
+                          {/* Reference */}
+                          <div className="grid gap-3 mt-3">
+                            <input
+                              type="text"
+                              placeholder="Reference"
+                              value={address.reference}
+                              onChange={(e) =>
+                                setAddress((prev) => ({
+                                  ...prev,
+                                  reference: e.target.value,
+                                }))
+                              }
+                              className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-[#6153E0] mb-4">
-                          Shipping Address
-                        </label>
-
-                        {/* Street Address */}
-                        <div className="mb-3">
-                          <input
-                            type="text"
-                            placeholder="Street address"
-                            value={address.street1}
-                            onChange={(e) =>
-                              setAddress((prev) => ({
-                                ...prev,
-                                street1: e.target.value,
-                              }))
-                            }
-                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                            required
-                          />
-                        </div>
-
-                        {/* City and State Row */}
-                        <div className="grid grid-cols-2 gap-3 mb-3">
-                          <input
-                            type="text"
-                            placeholder="City"
-                            value={address.city}
-                            onChange={(e) =>
-                              setAddress((prev) => ({
-                                ...prev,
-                                city: e.target.value,
-                              }))
-                            }
-                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                            required
-                          />
-                          <input
-                            type="text"
-                            placeholder="State/Province"
-                            value={address.state}
-                            onChange={(e) =>
-                              setAddress((prev) => ({
-                                ...prev,
-                                state: e.target.value,
-                              }))
-                            }
-                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                            required
-                          />
-                        </div>
-
-                        {/* ZIP and Country Row */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <input
-                            type="text"
-                            placeholder="ZIP/Postal Code"
-                            value={address.zipCode}
-                            onChange={(e) =>
-                              setAddress((prev) => ({
-                                ...prev,
-                                zipCode: e.target.value,
-                              }))
-                            }
-                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                            required
-                          />
-                        </div>
-
-                        {/* Reference */}
-                        <div className="grid gap-3 mt-3">
-                          <input
-                            type="text"
-                            placeholder="Reference"
-                            value={address.reference}
-                            onChange={(e) =>
-                              setAddress((prev) => ({
-                                ...prev,
-                                reference: e.target.value,
-                              }))
-                            }
-                            className="w-full border border-[#DDC7FF]/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#6153E0] focus:border-transparent bg-white/80 backdrop-blur-sm text-[#6153E0] placeholder-[#6153E0]/50 transition-all"
-                            required
-                          />
-                        </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-gradient-to-br from-[#D6E012] to-[#6153E0] rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span className="text-2xl">
+                          <Check />
+                        </span>
                       </div>
+                      <h2 className="text-2xl font-bold text-[#6153E0] mb-2">
+                        Ready to Checkout
+                      </h2>
+                      <p className="text-[#6153E0]/70 mb-6">
+                        Your account information will be used for shipping
+                      </p>
                     </div>
-                  </>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-[#D6E012] to-[#6153E0] rounded-full flex items-center justify-center mx-auto mb-6">
-                      <span className="text-2xl">
-                        <Check />
-                      </span>
-                    </div>
-                    <h2 className="text-2xl font-bold text-[#6153E0] mb-2">
-                      Ready to Checkout
-                    </h2>
-                    <p className="text-[#6153E0]/70 mb-6">
-                      Your account information will be used for shipping
-                    </p>
-                  </div>
-                )}
+                  )}
 
-                {/* Shipping Quote Section */}
-                <div className="mb-6">
-                  {/* <h3 className="text-lg font-bold text-[#6153E0] mb-4 flex items-center">
+                  {/* Shipping Quote Section */}
+                  <div className="mb-6">
+                    {/* <h3 className="text-lg font-bold text-[#6153E0] mb-4 flex items-center">
                     <div className="w-6 h-6 bg-gradient-to-br from-[#FF991F] to-[#D6E012] rounded-full flex items-center justify-center mr-3">
                       <span className="text-white text-xs">🚚</span>
                     </div>
                     Shipping Information
                   </h3> */}
 
-                  {/* Quote Button */}
+                    {/* Quote Button */}
+                    <button
+                      onClick={handleQuote}
+                      type="button"
+                      disabled={
+                        loading ||
+                        (isGuest &&
+                          (!address.street1 ||
+                            !address.city ||
+                            !address.state ||
+                            !address.zipCode))
+                      }
+                      className="w-full bg-gradient-to-r from-[#FF991F] to-[#D6E012] hover:from-[#D6E012] hover:to-[#FF991F] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 mb-4"
+                    >
+                      {loading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Calculating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Truck className="h-5 w-5" />
+                          <span>Calculate Shipping Cost</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Shipping Cost Display */}
+                    {shippingCost !== null && (
+                      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-[#D6E012]/30 mb-4 transition-all duration-300">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[#6153E0] font-semibold flex items-center">
+                            <span className="mr-2"></span>
+                            Shipping Cost:
+                          </span>
+                          <span className="text-xl font-bold text-[#FF991F]">
+                            ${shippingCost.toFixed(2)} MXN
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Shipping Details */}
+                    {shippingDetails && (
+                      <div className="bg-gradient-to-r from-[#FFFBF4]/90 to-[#DDC7FF]/20 backdrop-blur-sm rounded-2xl p-4 border border-[#DDC7FF]/30 transition-all duration-300">
+                        <h4 className="font-semibold text-[#6153E0] mb-3 flex items-center">
+                          <Package className="mr-2 h-5 w-5" />
+                          Shipping Details
+                        </h4>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div className="bg-white/60 rounded-xl p-3">
+                            <div className="text-[#6153E0]/70 mb-1">
+                              Provider
+                            </div>
+                            <div className="font-semibold text-[#6153E0]">
+                              {shippingDetails.provider}
+                            </div>
+                          </div>
+                          <div className="bg-white/60 rounded-xl p-3">
+                            <div className="text-[#6153E0]/70 mb-1">
+                              Delivery Time
+                            </div>
+                            <div className="font-semibold text-[#6153E0]">
+                              {shippingDetails.days} days
+                            </div>
+                          </div>
+                          <div className="bg-white/60 rounded-xl p-3">
+                            <div className="text-[#6153E0]/70 mb-1">
+                              Service
+                            </div>
+                            <div className="font-semibold text-[#6153E0]">
+                              {shippingDetails.service}
+                            </div>
+                          </div>
+                          <div className="bg-white/60 rounded-xl p-3">
+                            <div className="text-[#6153E0]/70 mb-1">
+                              Total Cost
+                            </div>
+                            <div className="font-semibold text-[#FF991F]">
+                              ${Number(shippingDetails.total).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Shipping Required Notice */}
+                    {!shippingCost && isGuest && (
+                      <div className="bg-[#FF6E98]/10 border border-[#FF6E98]/30 rounded-xl p-4 backdrop-blur-sm">
+                        <p className="text-[#FF6E98] text-sm text-center flex items-center justify-center">
+                          <Info className="mr-2 h-5 w-5" />
+                          Please fill in your address and calculate shipping
+                          before placing your order
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Place Order Button */}
                   <button
-                    onClick={handleQuote}
-                    type="button"
-                    disabled={
-                      loading ||
-                      (isGuest &&
-                        (!address.street1 ||
-                          !address.city ||
-                          !address.state ||
-                          !address.zipCode))
-                    }
-                    className="w-full bg-gradient-to-r from-[#FF991F] to-[#D6E012] hover:from-[#D6E012] hover:to-[#FF991F] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 mb-4"
+                    onClick={handlePlaceOrder}
+                    disabled={loading || (isGuest && shippingCost === null)}
+                    className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
                   >
                     {loading ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        <span>Calculating...</span>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>Processing Order...</span>
                       </>
                     ) : (
                       <>
-                        <span>🚚</span>
-                        <span>Calculate Shipping Cost</span>
+                        <span>
+                          <Lock className="h-5 w-5" />
+                        </span>
+                        <span>
+                          {isGuest && shippingCost === null
+                            ? "Calculate Shipping First"
+                            : "Place Secure Order"}
+                        </span>
                       </>
                     )}
                   </button>
 
-                  {/* Shipping Cost Display */}
-                  {shippingCost !== null && (
-                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-[#D6E012]/30 mb-4 transition-all duration-300">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[#6153E0] font-semibold flex items-center">
-                          <span className="mr-2">💰</span>
-                          Shipping Cost:
-                        </span>
-                        <span className="text-xl font-bold text-[#FF991F]">
-                          ${shippingCost.toFixed(2)} MXN
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Shipping Details */}
-                  {shippingDetails && (
-                    <div className="bg-gradient-to-r from-[#FFFBF4]/90 to-[#DDC7FF]/20 backdrop-blur-sm rounded-2xl p-4 border border-[#DDC7FF]/30 transition-all duration-300">
-                      <h4 className="font-semibold text-[#6153E0] mb-3 flex items-center">
-                        <span className="mr-2">📦</span>
-                        Shipping Details
-                      </h4>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div className="bg-white/60 rounded-xl p-3">
-                          <div className="text-[#6153E0]/70 mb-1">Provider</div>
-                          <div className="font-semibold text-[#6153E0]">
-                            {shippingDetails.provider}
-                          </div>
-                        </div>
-                        <div className="bg-white/60 rounded-xl p-3">
-                          <div className="text-[#6153E0]/70 mb-1">
-                            Delivery Time
-                          </div>
-                          <div className="font-semibold text-[#6153E0]">
-                            {shippingDetails.days} days
-                          </div>
-                        </div>
-                        <div className="bg-white/60 rounded-xl p-3">
-                          <div className="text-[#6153E0]/70 mb-1">Service</div>
-                          <div className="font-semibold text-[#6153E0]">
-                            {shippingDetails.service}
-                          </div>
-                        </div>
-                        <div className="bg-white/60 rounded-xl p-3">
-                          <div className="text-[#6153E0]/70 mb-1">
-                            Total Cost
-                          </div>
-                          <div className="font-semibold text-[#FF991F]">
-                            ${Number(shippingDetails.total).toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Shipping Required Notice */}
-                  {!shippingCost && isGuest && (
-                    <div className="bg-[#FF6E98]/10 border border-[#FF6E98]/30 rounded-xl p-4 backdrop-blur-sm">
-                      <p className="text-[#FF6E98] text-sm text-center flex items-center justify-center">
-                        <span className="mr-2">ℹ️</span>
-                        Please fill in your address and calculate shipping
-                        before placing your order
+                  {error && (
+                    <div className="mt-4 p-4 bg-[#FF6E98]/10 border border-[#FF6E98]/30 rounded-xl backdrop-blur-sm transition-all duration-300">
+                      <p className="text-[#FF6E98] font-medium text-center flex items-center justify-center">
+                        <AlertTriangle className="mr-2 h-5 w-5" />
+                        {error}
                       </p>
                     </div>
                   )}
-                </div>
 
-                {/* Place Order Button */}
-                <button
-                  onClick={handlePlaceOrder}
-                  disabled={loading || (isGuest && shippingCost === null)}
-                  className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] hover:from-[#FF6E98] hover:to-[#FF991F] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
-                >
-                  {loading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Processing Order...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>
-                        <Lock />
-                      </span>
-                      <span>
-                        {isGuest && shippingCost === null
-                          ? "Calculate Shipping First"
-                          : "Place Secure Order"}
-                      </span>
-                    </>
-                  )}
-                </button>
-
-                {error && (
-                  <div className="mt-4 p-4 bg-[#FF6E98]/10 border border-[#FF6E98]/30 rounded-xl backdrop-blur-sm transition-all duration-300">
-                    <p className="text-[#FF6E98] font-medium text-center flex items-center justify-center">
-                      <span className="mr-2">⚠️</span>
-                      {error}
+                  {/* Security Notice */}
+                  <div className="mt-6 p-4 bg-[#D6E012]/10 border border-[#D6E012]/30 rounded-xl backdrop-blur-sm">
+                    <p className="text-xs text-[#6153E0]/70 text-center flex items-center justify-center">
+                      <ShieldCheck className="mr-2 h-4 w-4" />
+                      Your payment information is secured with end-to-end
+                      encryption
                     </p>
                   </div>
-                )}
-
-                {/* Security Notice */}
-                <div className="mt-6 p-4 bg-[#D6E012]/10 border border-[#D6E012]/30 rounded-xl backdrop-blur-sm">
-                  <p className="text-xs text-[#6153E0]/70 text-center flex items-center justify-center">
-                    <span className="mr-2">🔐</span>
-                    Your payment information is secured with end-to-end
-                    encryption
-                  </p>
                 </div>
-              </section>
+              </GlassCard>
             </div>
           )}
         </div>

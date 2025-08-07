@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { addToCart, openCartDrawer, closeCartDrawer } from "@/slices/cartSlice";
-import { fetchProductById } from "@/lib/api/products";
+import { fetchProductById, fetchProductsByCategory } from "@/lib/api/products";
 import { Product } from "@/types/product";
 import Image from "next/image";
 import {
@@ -22,6 +22,9 @@ import TrustIndicators from "@/components/TrustIndicators";
 
 export default function ProductPage() {
   const [product, setProduct] = useState<Product>();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product>();
+  const [isCategory, setIsCategory] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -37,20 +40,78 @@ export default function ProductPage() {
     (state: RootState) => state.cart.isCartDrawerOpen
   );
 
+  // Dynamic color theming based on category
+  const getCategoryTheme = (categoryName: string) => {
+    const themes = {
+      "ginger-beer": {
+        primary: "#E2DFFF",
+        secondary: "#FFE6F0",
+        accent: "#6153E0",
+        gradient: "linear-gradient(to bottom right, #E2DFFF, #FFFFFF, #FFE6F0)",
+      },
+      "ginger-beer-maracuya": {
+        primary: "#FEF3C7",
+        secondary: "#FFE4B5",
+        accent: "#F59E0B",
+        gradient: "linear-gradient(to bottom right, #FEF3C7, #FEFCE8, #FFE4B5)",
+      },
+      sodas: {
+        primary: "#FECACA",
+        secondary: "#FDE8E8",
+        accent: "#EF4444",
+        gradient: "linear-gradient(to bottom right, #FECACA, #FFFFFF, #FDE8E8)",
+      },
+      juices: {
+        primary: "#DCFCE7",
+        secondary: "#BBF7D0",
+        accent: "#22C55E",
+        gradient: "linear-gradient(to bottom right, #DCFCE7, #FFFFFF, #BBF7D0)",
+      },
+    };
+    return themes[categoryName as keyof typeof themes] || themes["ginger-beer"];
+  };
+
+  // Get current theme based on category/product
+  const currentTheme = getCategoryTheme(id as string);
+
   useEffect(() => {
-    fetchProductById(id)
-      .then((data) => {
-        setProduct(data);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsError(true);
-        setIsLoading(false);
-      });
+    // Check if id is a number (individual product) or string (category)
+    const isNumericId = /^\d+$/.test(id);
+
+    if (isNumericId) {
+      // Fetch individual product
+      fetchProductById(id)
+        .then((data) => {
+          setProduct(data);
+          setSelectedProduct(data);
+          setIsLoading(false);
+        })
+        .catch(() => {
+          setIsError(true);
+          setIsLoading(false);
+        });
+    } else {
+      // Fetch products by category
+      setIsCategory(true);
+      fetchProductsByCategory(id)
+        .then((data) => {
+          setProducts(data);
+          if (data.length > 0) {
+            // Set the first product as default
+            setSelectedProduct(data[0]);
+            setProduct(data[0]);
+          }
+          setIsLoading(false);
+        })
+        .catch(() => {
+          setIsError(true);
+          setIsLoading(false);
+        });
+    }
   }, [id]);
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!selectedProduct) return;
 
     const defaultParcel: {
       length: number;
@@ -75,10 +136,10 @@ export default function ProductPage() {
     };
 
     let parcelData = defaultParcel;
-    if (product.parcel) {
-      if (typeof product.parcel === "string") {
+    if (selectedProduct.parcel) {
+      if (typeof selectedProduct.parcel === "string") {
         try {
-          const parsedParcel = JSON.parse(product.parcel);
+          const parsedParcel = JSON.parse(selectedProduct.parcel);
           // Mapear de snake_case a camelCase
           parcelData = {
             length: parsedParcel.length,
@@ -97,25 +158,25 @@ export default function ProductPage() {
       } else {
         // Si ya viene como objeto, mapear también
         parcelData = {
-          length: product.parcel.length,
-          width: product.parcel.width,
-          height: product.parcel.height,
-          weight: product.parcel.weight,
-          packageType: product.parcel.packageType || "4G",
-          declaredValue: product.parcel.declaredValue || 2500,
-          packageNumber: product.parcel.packageNumber || 1,
-          consignmentNote: product.parcel.consignmentNote || "50202300",
-          packageProtected: product.parcel.packageProtected ?? true,
+          length: selectedProduct.parcel.length,
+          width: selectedProduct.parcel.width,
+          height: selectedProduct.parcel.height,
+          weight: selectedProduct.parcel.weight,
+          packageType: selectedProduct.parcel.packageType || "4G",
+          declaredValue: selectedProduct.parcel.declaredValue || 2500,
+          packageNumber: selectedProduct.parcel.packageNumber || 1,
+          consignmentNote: selectedProduct.parcel.consignmentNote || "50202300",
+          packageProtected: selectedProduct.parcel.packageProtected ?? true,
         };
       }
     }
 
     dispatch(
       addToCart({
-        id: Number(product.id),
-        name: product.name,
-        price: product.price,
-        image: product.image,
+        id: Number(selectedProduct.id),
+        name: selectedProduct.name,
+        price: selectedProduct.price,
+        image: selectedProduct.image,
         quantity,
         parcel: parcelData,
       })
@@ -124,22 +185,69 @@ export default function ProductPage() {
     dispatch(openCartDrawer());
   };
 
+  // Helper functions for pack size handling
+  const getPackSize = (productName: string): string => {
+    const packMatch = productName.match(/(\d+)\s*[Pp]ack/);
+    if (packMatch) {
+      const number = packMatch[1];
+      return `${number}-Pack`;
+    }
+    return "Single";
+  };
+
+  const getCleanProductName = (productName: string): string => {
+    return productName
+      .replace(/\d+\s*[Pp]ack/g, "")
+      .replace(/\d+\s*(piece|pieces|unit|units)/gi, "")
+      .trim();
+  };
+
+  const calculatePricePerUnit = (
+    totalPrice: number,
+    productName: string
+  ): string => {
+    const packMatch = productName.match(/(\d+)\s*[Pp]ack/);
+    if (packMatch) {
+      const units = parseInt(packMatch[1]);
+      const pricePerUnit = totalPrice / units;
+      return `$${pricePerUnit.toFixed(2)} per bottle`;
+    }
+    return "per pack";
+  };
+
   if (isLoading) {
+    const defaultTheme = getCategoryTheme(id as string);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] flex justify-center items-center">
-        <div className="w-12 h-12 border-4 border-[#DDC7FF] border-t-[#6153E0] rounded-full animate-spin" />
+      <div
+        className="min-h-screen flex justify-center items-center transition-all duration-700"
+        style={{ background: defaultTheme.gradient }}
+      >
+        <div
+          className="w-12 h-12 border-4 border-t-4 rounded-full animate-spin"
+          style={{
+            borderColor: `${defaultTheme.accent}30`,
+            borderTopColor: defaultTheme.accent,
+          }}
+        />
       </div>
     );
   }
 
   if (isError || !product) {
+    const defaultTheme = getCategoryTheme(id as string);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFFBF4] via-[#DDC7FF] to-[#6153E0] flex justify-center items-center">
-        <div className="text-center p-8 bg-[#FF6E98]/10 border border-[#FF6E98]/30 rounded-2xl max-w-md mx-auto backdrop-blur-sm opacity-0 animate-fade-in-down">
-          <p className="text-[#FF6E98] font-semibold mb-2">
+      <div
+        className="min-h-screen flex justify-center items-center transition-all duration-700"
+        style={{ background: defaultTheme.gradient }}
+      >
+        <div className="text-center p-8 bg-white/20 border border-white/30 rounded-2xl max-w-md mx-auto backdrop-blur-sm opacity-0 animate-fade-in-down">
+          <p
+            className="font-semibold mb-2"
+            style={{ color: defaultTheme.accent }}
+          >
             Oops! Something went wrong
           </p>
-          <p className="text-[#6153E0]/70 text-sm">
+          <p className="text-[#3A3185]/70 text-sm">
             Failed to load product details. Please try again later.
           </p>
         </div>
@@ -149,18 +257,34 @@ export default function ProductPage() {
 
   return (
     <>
-      <main className="min-h-screen bg-[#F8F4FF] relative overflow-hidden pt-20">
+      <main
+        className="min-h-screen relative overflow-hidden pt-20 transition-all duration-700 ease-in-out"
+        style={{ background: currentTheme.gradient }}
+      >
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#DDC7FF]/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#FF991F]/10 rounded-full blur-3xl animate-pulse [animation-delay:500ms]"></div>
+          <div
+            className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-3xl animate-pulse transition-colors duration-700"
+            style={{ backgroundColor: `${currentTheme.accent}20` }}
+          ></div>
+          <div
+            className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full blur-3xl animate-pulse [animation-delay:500ms] transition-colors duration-700"
+            style={{ backgroundColor: `${currentTheme.accent}10` }}
+          ></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-16 py-12">
           {/* Back Button */}
           <button
             onClick={() => router.back()}
-            className="flex items-center space-x-2 text-[#6153E0]/80 hover:text-[#FF6E98] mb-8 group transition-colors duration-300"
+            className="flex items-center space-x-2 hover:text-opacity-80 mb-8 group transition-all duration-300"
+            style={{ color: `${currentTheme.accent}CC` }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = currentTheme.accent;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = `${currentTheme.accent}CC`;
+            }}
           >
             <ArrowLeft
               size={18}
@@ -181,8 +305,8 @@ export default function ProductPage() {
                 )}
 
                 <Image
-                  src={product.image}
-                  alt={product.name}
+                  src={selectedProduct?.image || product?.image || ""}
+                  alt={selectedProduct?.name || product?.name || ""}
                   fill
                   className={`object-cover transition-all duration-700 hover:scale-105 ${
                     imageLoaded ? "opacity-100" : "opacity-0"
@@ -197,7 +321,8 @@ export default function ProductPage() {
                   <button className="bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-md hover:bg-white transition-colors">
                     <Heart
                       size={20}
-                      className="text-[#6153E0] hover:text-[#FF6E98] transition-colors"
+                      className="transition-colors"
+                      style={{ color: currentTheme.accent }}
                     />
                   </button>
                 </div>
@@ -208,22 +333,127 @@ export default function ProductPage() {
             {/* Product Info Section */}
             <div className="space-y-6 opacity-0 animate-fade-in-down [animation-delay:400ms]">
               {/* Badge */}
-              <span className="inline-block px-4 py-1.5 bg-[#D6E012]/20 text-[#6153E0] rounded-full text-sm font-semibold border border-[#D6E012]/30 opacity-0 animate-fade-in-down [animation-delay:500ms]">
-                ✨ Premium Quality
+              <span
+                className="inline-block px-4 py-1.5 rounded-full text-sm font-semibold border opacity-0 animate-fade-in-down [animation-delay:500ms]"
+                style={{
+                  backgroundColor: `${currentTheme.accent}20`,
+                  color: currentTheme.accent,
+                  borderColor: `${currentTheme.accent}30`,
+                }}
+              >
+                ✨ Example Tag
               </span>
               {/* Title */}
               <div className="opacity-0 animate-fade-in-down [animation-delay:600ms]">
-                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6153E0] to-[#3A3185] mb-3 leading-tight">
-                  {product.name}
+                <h1
+                  className="text-4xl md:text-5xl font-bold mb-3 leading-tight"
+                  style={{ color: currentTheme.accent }}
+                >
+                  {isCategory
+                    ? getCleanProductName(selectedProduct?.name || "")
+                    : selectedProduct?.name}
                 </h1>
-                {/* Rating - can be added here */}
+                {isCategory && (
+                  <p
+                    className="text-lg font-medium"
+                    style={{ color: `${currentTheme.accent}99` }}
+                  >
+                    Choose your perfect pack size
+                  </p>
+                )}
               </div>
               {/* Description */}
-              <p className="text-lg text-[#6153E0]/80 leading-relaxed opacity-0 animate-fade-in-down [animation-delay:700ms]">
-                {product.description}
+              <p
+                className="text-lg leading-relaxed opacity-0 animate-fade-in-down [animation-delay:700ms]"
+                style={{ color: `${currentTheme.accent}CC` }}
+              >
+                {selectedProduct?.description}
               </p>
+
+              {/* Pack Size Selection - Only show for categories */}
+              {isCategory && products.length > 1 && (
+                <div className="opacity-0 animate-fade-in-down [animation-delay:750ms]">
+                  <h3
+                    className="text-lg font-semibold mb-3"
+                    style={{ color: currentTheme.accent }}
+                  >
+                    Select Pack Size:
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {products.map((prod) => (
+                      <button
+                        key={prod.id}
+                        onClick={() => {
+                          setSelectedProduct(prod);
+                          setProduct(prod);
+                          setQuantity(1);
+                        }}
+                        className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${
+                          selectedProduct?.id === prod.id
+                            ? "shadow-lg"
+                            : "bg-white/80 hover:bg-white"
+                        }`}
+                        style={
+                          selectedProduct?.id === prod.id
+                            ? {
+                                borderColor: currentTheme.accent,
+                                backgroundColor: `${currentTheme.accent}10`,
+                              }
+                            : {
+                                borderColor: `${currentTheme.accent}30`,
+                              }
+                        }
+                        onMouseEnter={(e) => {
+                          if (selectedProduct?.id !== prod.id) {
+                            e.currentTarget.style.borderColor = `${currentTheme.accent}60`;
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (selectedProduct?.id !== prod.id) {
+                            e.currentTarget.style.borderColor = `${currentTheme.accent}30`;
+                          }
+                        }}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h4
+                            className="font-bold"
+                            style={{ color: currentTheme.accent }}
+                          >
+                            {getPackSize(prod.name)}
+                          </h4>
+                          <span
+                            className="text-2xl font-bold"
+                            style={{ color: currentTheme.accent }}
+                          >
+                            ${prod.price.toFixed(2)}
+                          </span>
+                        </div>
+                        <p
+                          className="text-sm mb-1"
+                          style={{ color: `${currentTheme.accent}AA` }}
+                        >
+                          {calculatePricePerUnit(prod.price, prod.name)}
+                        </p>
+                        <div className="flex justify-between items-center text-xs">
+                          <span
+                            className={`px-2 py-1 rounded-full ${
+                              prod.countInStock > 0
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {prod.countInStock > 0
+                              ? `${prod.countInStock} in stock`
+                              : "Out of stock"}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {/* Features */}
-              <div className="flex flex-wrap gap-3 pt-2 opacity-0 animate-fade-in-down [animation-delay:800ms]">
+              {/* <div className="flex flex-wrap gap-3 pt-2 opacity-0 animate-fade-in-down [animation-delay:800ms]">
                 <span className="px-3 py-1.5 bg-white/80 text-[#6153E0] rounded-full text-sm font-medium border border-[#DDC7FF]/50">
                   Natural Ingredients
                 </span>
@@ -233,32 +463,44 @@ export default function ProductPage() {
                 <span className="px-3 py-1.5 bg-white/80 text-[#6153E0] rounded-full text-sm font-medium border border-[#DDC7FF]/50">
                   Handcrafted
                 </span>
-              </div>
+              </div> */}
               {/* Price and Stock */}
               <div className="!my-8 bg-gradient-to-r from-[#6153E0]/5 to-[#FF6E98]/5 rounded-2xl p-6 border border-white opacity-0 animate-fade-in-down [animation-delay:900ms]">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <span className="text-4xl font-bold text-[#6153E0]">
-                      ${product.price.toFixed(2)}
+                      ${selectedProduct?.price.toFixed(2)}
                     </span>
-                    <span className="text-sm text-[#6153E0]/60 ml-2">
-                      per bottle
-                    </span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm text-[#6153E0]/60">
+                        {isCategory
+                          ? calculatePricePerUnit(
+                              selectedProduct?.price || 0,
+                              selectedProduct?.name || ""
+                            )
+                          : "per bottle"}
+                      </span>
+                      {isCategory && (
+                        <span className="text-xs bg-[#6153E0]/10 text-[#6153E0] px-2 py-1 rounded-full">
+                          {getPackSize(selectedProduct?.name || "")}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      product.countInStock > 0
+                      (selectedProduct?.countInStock || 0) > 0
                         ? "bg-[#D6E012]/20 text-[#6153E0] border border-[#D6E012]/30"
                         : "bg-[#FF6E98]/20 text-[#6153E0] border border-[#FF6E98]/30"
                     }`}
                   >
-                    {product.countInStock > 0
-                      ? `${product.countInStock} in stock`
+                    {(selectedProduct?.countInStock || 0) > 0
+                      ? `${selectedProduct?.countInStock} in stock`
                       : "Out of Stock"}
                   </span>
                 </div>
                 {/* Quantity and Add to Cart */}
-                {product.countInStock > 0 && (
+                {(selectedProduct?.countInStock || 0) > 0 && (
                   <div className="grid md:grid-cols-2 gap-4 items-center">
                     <div className="bg-white/80 rounded-xl border border-[#DDC7FF]/50 flex items-center justify-between p-2">
                       <button
@@ -300,11 +542,13 @@ export default function ProductPage() {
                       <button
                         onClick={() =>
                           setQuantity((q) =>
-                            Math.min(product.countInStock, q + 1)
+                            Math.min(selectedProduct?.countInStock || 0, q + 1)
                           )
                         }
                         className="w-10 h-10 text-2xl text-[#6153E0] hover:bg-[#DDC7FF]/40 disabled:opacity-50 transition-colors rounded-lg"
-                        disabled={quantity >= product.countInStock}
+                        disabled={
+                          quantity >= (selectedProduct?.countInStock || 0)
+                        }
                       >
                         +
                       </button>
@@ -314,7 +558,13 @@ export default function ProductPage() {
                       className="w-full bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white font-bold py-4 px-6 rounded-xl hover:from-[#FF6E98] hover:to-[#FF991F] transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3 transform hover:-translate-y-1"
                     >
                       <ShoppingCart size={20} />
-                      <span>Add to Cart</span>
+                      <span>
+                        Add{" "}
+                        {isCategory
+                          ? getPackSize(selectedProduct?.name || "")
+                          : ""}{" "}
+                        to Cart
+                      </span>
                     </button>
                   </div>
                 )}

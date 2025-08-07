@@ -16,6 +16,31 @@ export async function fetchProductById(id: string): Promise<Product> {
   return res.json();
 }
 
+export async function fetchCategories(): Promise<
+  {
+    name: string;
+    productCount: number;
+    sampleImage: string;
+    displayName: string;
+  }[]
+> {
+  const res = await fetch("/api/products/categories");
+  if (!res.ok) {
+    throw new Error("Failed to fetch categories");
+  }
+  return res.json();
+}
+
+export async function fetchProductsByCategory(
+  category: string
+): Promise<Product[]> {
+  const res = await fetch(`/api/products/category/${category}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch products for category ${category}`);
+  }
+  return res.json();
+}
+
 export async function createProduct(productData: {
   name: string;
   description: string;

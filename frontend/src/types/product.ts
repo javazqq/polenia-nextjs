@@ -5,6 +5,7 @@ export type Product = {
   image: string;
   price: number;
   countInStock: number;
+  category?: string;
   parcel: {
     length: number;
     width: number;
@@ -16,4 +17,11 @@ export type Product = {
     consignmentNote: string;
     packageProtected: boolean;
   };
+};
+
+export type Category = {
+  name: string;
+  productCount: number;
+  sampleImage: string;
+  displayName: string;
 };
