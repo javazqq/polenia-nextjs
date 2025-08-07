@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import dynamic from "next/dynamic";
+import { useState } from "react";
 import {
   ArrowRight,
   Sparkles,
@@ -12,52 +16,80 @@ import {
   Globe,
 } from "lucide-react";
 
-// Distributor data
+// Define the distributor type
+interface Distributor {
+  name: string;
+  location: string;
+  type: string;
+  contact: string;
+  colorFrom: string;
+  colorTo: string;
+  lat: number;
+  lng: number;
+}
+
+// Dynamic import for the map to avoid SSR issues
+const DistributorsMap = dynamic(() => import("./DistributorsMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-96 bg-gradient-to-br from-[#6153E0]/10 to-[#FF6E98]/10 rounded-2xl flex items-center justify-center">
+      <div className="text-[#6153E0] text-center">
+        <div className="animate-spin w-8 h-8 border-2 border-[#6153E0] border-t-transparent rounded-full mx-auto mb-2"></div>
+        <p>Loading map...</p>
+      </div>
+    </div>
+  ),
+});
+
+// Distributor data with coordinates
 const distributors = [
   {
-    name: "Tokyo Beverage Co.",
-    location: "Tokyo, Japan",
-    type: "Premium craft beverage distributor",
-    contact: "info@tokyobeverage.co.jp",
+    name: "Muss Cafe",
+    location: "Oaxaca, México",
+    type: "Specialty coffee & craft beverages",
+    contact: "info@musscafe.mx",
     colorFrom: "#6153E0",
     colorTo: "#FF6E98",
+    lat: 17.0732,
+    lng: -96.7266,
   },
   {
-    name: "Oaxaca Gourmet",
+    name: "Pan con Madre",
     location: "Oaxaca, México",
-    type: "Specialty foods and beverages",
-    contact: "ventas@oaxacagourmet.mx",
+    type: "Artisan bakery & beverages",
+    contact: "hola@panconmadre.mx",
     colorFrom: "#FF6E98",
     colorTo: "#FF991F",
+    lat: 17.0654,
+    lng: -96.7194,
   },
   {
-    name: "Global Drinks",
-    location: "Online & International",
-    type: "Worldwide shipping available",
-    contact: "hello@globaldrinks.com",
+    name: "La Pitaya",
+    location: "Oaxaca, México",
+    type: "Local restaurant & bar",
+    contact: "contacto@lapitaya.mx",
     colorFrom: "#FF991F",
     colorTo: "#D6E012",
+    lat: 17.0608,
+    lng: -96.7264,
   },
-  // Add more distributors here
   {
-    name: "Craft Importers",
-    location: "San Francisco, USA",
-    type: "Artisan beverage specialists",
-    contact: "contact@craftimporters.com",
+    name: "Lluvia y Cosecha",
+    location: "Oaxaca, México",
+    type: "Farm-to-table restaurant",
+    contact: "info@lluviaycosecha.mx",
     colorFrom: "#22C55E",
     colorTo: "#6153E0",
-  },
-  {
-    name: "Bebidas MX",
-    location: "CDMX, México",
-    type: "Local beverage distributor",
-    contact: "info@bebidasmx.com",
-    colorFrom: "#EF4444",
-    colorTo: "#F59E0B",
+    lat: 17.0667,
+    lng: -96.7156,
   },
 ];
 
 function DistributorsBanner() {
+  const [selectedDistributor, setSelectedDistributor] = useState<string | null>(
+    null
+  );
+
   return (
     <section className="py-16 md:py-24 bg-gradient-to-br from-[#FFFBF4] to-[#F8F4FF]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -71,32 +103,76 @@ function DistributorsBanner() {
             trusted locations:
           </p>
         </div>
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-[#DDC7FF]/40 scrollbar-track-transparent">
-          <div className="flex gap-8 md:gap-10 pb-4 snap-x snap-mandatory">
+
+        {/* Horizontal Layout: Distributor Cards + Map */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+          {/* Left Column: Distributor Cards (Right on mobile) */}
+          <div className="order-2 lg:order-1 space-y-6 max-h-96 overflow-y-auto scrollbar-none hover:scrollbar-thin hover:scrollbar-thumb-[#DDC7FF]/40 hover:scrollbar-track-transparent px-6 py-3 transition-all duration-300">
             {distributors.map((d, idx) => (
               <div
                 key={d.name}
-                className="min-w-[260px] max-w-xs bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/40 shadow-lg text-center flex flex-col items-center snap-center transition-transform duration-300 hover:scale-105"
+                className={`bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-white/40 shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer ${
+                  selectedDistributor === d.name
+                    ? "ring-2 ring-opacity-50 scale-105"
+                    : ""
+                }`}
+                style={
+                  selectedDistributor === d.name
+                    ? ({
+                        "--tw-ring-color": d.colorFrom,
+                      } as React.CSSProperties)
+                    : {}
+                }
+                onClick={() =>
+                  setSelectedDistributor(
+                    d.name === selectedDistributor ? null : d.name
+                  )
+                }
               >
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-                  style={{
-                    background: `linear-gradient(to bottom right, ${d.colorFrom}, ${d.colorTo})`,
-                  }}
-                >
-                  <Globe className="w-8 h-8 text-white" />
+                <div className="flex items-center gap-4">
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: `linear-gradient(to bottom right, ${d.colorFrom}, ${d.colorTo})`,
+                    }}
+                  >
+                    <Globe className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-lg font-bold text-[#6153E0] truncate">
+                      {d.name}
+                    </h4>
+                    <p className="text-[#6153E0]/70 text-sm truncate">
+                      {d.location}
+                    </p>
+                    <p className="text-gray-700 text-xs truncate">{d.type}</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-[#6153E0] mb-2">
-                  {d.name}
-                </h3>
-                <p className="text-[#6153E0]/70 mb-2">{d.location}</p>
-                <p className="text-gray-700 text-sm mb-1">{d.type}</p>
-                <span className="font-medium text-xs text-[#6153E0]/80">
-                  {d.contact}
-                </span>
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <span className="font-medium text-xs text-[#6153E0]/80">
+                    {d.contact}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
+
+          {/* Right Column: Interactive Map (First on mobile) */}
+          <div className="order-1 lg:order-2">
+            <DistributorsMap
+              distributors={distributors}
+              selectedDistributor={selectedDistributor}
+              onDistributorSelect={setSelectedDistributor}
+            />
+          </div>
+        </div>
+
+        {/* Instructions */}
+        <div className="text-center mt-8">
+          <p className="text-[#6153E0]/60 text-sm">
+            Click on distributor cards or map markers to explore locations • Map
+            will automatically zoom to selected distributor
+          </p>
         </div>
       </div>
     </section>
