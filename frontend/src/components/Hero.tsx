@@ -1,6 +1,7 @@
 import Image from "next/image";
 import poleniaLogo from "/public/images/polenia-logo.png";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -18,7 +19,7 @@ export default function Hero() {
           <div className="flex justify-center opacity-0 animate-fade-in-down [animation-delay:150ms]">
             <Image
               src={poleniaLogo}
-              alt="Polenia Ginger Beer Logo"
+              alt="Logo de Polenia Ginger Beer"
               width={700}
               height={220}
               priority
@@ -28,28 +29,25 @@ export default function Hero() {
 
           {/* Subtitle */}
           <p className="text-base md:text-2xl text-[#6153E0]/80 mb-8 max-w-2xl mx-auto leading-relaxed font-light opacity-0 animate-fade-in-down [animation-delay:300ms]">
-            クラフトジンジャービール専門店
+            Cerveza de jengibre artesanal
             <br />
-            <span className="font-medium text-[#6153E0]">
-              Crafted for the <strong><em>bold</em></strong>
-            </span>
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center opacity-0 animate-fade-in-down [animation-delay:500ms]">
-            <a href="/products" className="group w-full sm:w-auto">
+            <Link href="/products" className="group w-full sm:w-auto">
               <button className="w-full sm:w-auto bg-gradient-to-r from-[#6153E0] to-[#FF6E98] text-white px-6 py-3 md:px-10 md:py-4 rounded-2xl text-base md:text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 group-hover:from-[#FF6E98] group-hover:to-[#FF991F] flex items-center justify-center">
-                今すぐ注文!
+                ¡Ordena ahora!
                 <span className="ml-2 flex items-center group-hover:translate-x-1 transition-transform duration-300">
                   <ArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </button>
-            </a>
-            <a href="/about" className="group w-full sm:w-auto">
+            </Link>
+            <Link href="/about" className="group w-full sm:w-auto">
               <button className="w-full sm:w-auto bg-[#FFFBF4]/90 backdrop-blur-sm text-[#6153E0] px-6 py-3 md:px-10 md:py-4 rounded-2xl text-base md:text-lg font-semibold hover:bg-[#FFFBF4] hover:shadow-xl transition-all duration-300 border border-[#DDC7FF]">
-                もっと詳しく知る
+                Saber más
               </button>
-            </a>
+            </Link>
           </div>
 
           {/* Features */}
@@ -60,11 +58,11 @@ export default function Hero() {
             </div>
             <div className="flex items-center gap-2 text-sm font-medium">
               <span className="w-2 h-2 bg-[#6153E0] rounded-full"></span>
-              Small Batch
+              Lotes pequeños
             </div>
             <div className="flex items-center gap-2 text-sm font-medium">
               <span className="w-2 h-2 bg-[#FF991F] rounded-full"></span>
-              Locally Sourced
+              Ingredientes locales
             </div>
           </div>
         </div>
